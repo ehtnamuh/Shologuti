@@ -43,5 +43,11 @@ public class Guti : MonoBehaviour
                 break;
         }
     }
-    
+
+    public void SetGutiColor(Color color)
+    {
+        var spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
+        spriteRenderer.color = color;
+    }
+
 }

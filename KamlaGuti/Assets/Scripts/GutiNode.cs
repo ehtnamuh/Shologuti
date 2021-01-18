@@ -36,6 +36,19 @@ public struct Address
     public static bool operator ==(Address a, Address b) => (a.x == b.x && a.y == b.y);
     public static bool operator !=(Address a, Address b) => !(a == b);
 
+    public static Address operator *(Address a, int multiplier)
+    {
+        return new Address {x = a.x * multiplier, y = a.y * multiplier};
+    }
+    
+    public float GetMagnitude()
+    {
+        var xx = (float) x;
+        var yy = (float) y;
+        var sq = (float)Math.Sqrt(xx*xx + yy*yy);
+        return sq;
+    }
+    
     public Address GetDirectionVector()
     {
         var addr = new Address {x = x == 0 ? 0 : x / Math.Abs(x), y = y == 0 ? 0 : y / Math.Abs(y)};

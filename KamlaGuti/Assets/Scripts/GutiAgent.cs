@@ -33,19 +33,23 @@ public class GutiAgent : Agent
         iterator = -1;
         maxIndex = -1;
         maxValue = -1;
-        _gutiTypeTree = new List<List<float>>();
+        _gutiTypeTree = null;
     }
     
     public override void OnEpisodeBegin()
     {
         Init();
-        // base.OnEpisodeBegin();
     }
 
     public void PopulateGutiTypeTree(List<List<float>> gutiTypeTree)
     {
         _gutiTypeTree = gutiTypeTree;
         if (_gutiTypeTree.Count > 0) iterator = 0;
+        else
+        {
+            Debug.Log("Should Set the game to restart here");
+            _gameManager.DeclareWinner();
+        }
     }
 
     public override void CollectObservations(VectorSensor sensor)
@@ -64,10 +68,10 @@ public class GutiAgent : Agent
 
     public override void OnActionReceived(float[] vectorAction)
     {
-        // Debug.Log($"VectorAction: {vectorAction[0]}");
-        if (iterator < 0)
+        // ML-Agent calls this function after end and begining of episode
+        // this check is to prevent actions from being taken then
+        if (_gutiTypeTree == null && iterator < 0)
         {
-            // _gameManager.ChangeTurn();
             return;
         }
         if (iterator < _gutiTypeTree.Count)
@@ -86,11 +90,24 @@ public class GutiAgent : Agent
         {
             Debug.Log("We should have the best state now");
             _gutiTypeTree = null;
+            // If no possible moves, (indicating end of game) iterator will be unset
+            if (iterator == -1)
+            {
+                _gameManager.DeclareWinner();
+                return;
+            }
+            // If only one move was available, maxIndex will be unset
+            if (maxIndex == -1) maxIndex = 0;
             _gameManager.AgentMove(gutiType, maxIndex);
             iterator = -1;
             maxIndex = -1;
             maxValue = -1;
         }
+    }
+
+    protected override void OnEnable()
+    {
+        base.OnEnable();
     }
 
     protected override void OnDisable()

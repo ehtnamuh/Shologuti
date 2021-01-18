@@ -1,18 +1,23 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.MLAgents;
-using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class MinMaxAI
 {
     public GutiMap _gutiMap;
-    private int scoreUnit;
+    private GutiType playerGutiType;
+    private int _captureUnitScore;
+    private int _loseUnitScore;
 
-    public MinMaxAI(GutiMap _gutiMap, int scoreUnit)
+    public MinMaxAI(GutiMap _gutiMap, GutiType playerGutiType, int captureUnitScore = 1, int loseUnitScore = 1)
     {
         this._gutiMap = _gutiMap;
-        this.scoreUnit = scoreUnit;
+        this.playerGutiType = playerGutiType;
+        this._loseUnitScore = loseUnitScore == 0? -1: -Math.Abs(loseUnitScore) ;
+        this._captureUnitScore = captureUnitScore == 0? 1: Math.Abs(loseUnitScore);
     }
     
     // TODO: Need a way to check if game ended while exploring
@@ -20,13 +25,15 @@ public class MinMaxAI
     {
         if(explorationDepth <= 0) return null;
         var moveList = ExtractMoves(gutiType);
-        int maxScore = -2;
-        var selectedMove = moveList.Count>0?moveList[0]: new Move();
+        var maxScore = -2;
+        // MoveList.Count 0 indicates end of game
+        if (moveList.Count <= 0) return null;
+        var selectedMove = moveList[0];
         foreach (var move in moveList)
         {
             var tempExplorationDepth = explorationDepth;
             var score = 0;
-            score += MoveGuti(move);
+            score += MoveGuti(move, gutiType);
             if (_gutiMap.HasCapturableGuti(move.sourceAddress, move.targetAddress) && _gutiMap.HasCapturableGuti(move.targetAddress))
             {
                 var tempScore = 0;
@@ -38,7 +45,7 @@ public class MinMaxAI
                 var tempScore = 0;
                 var tempGutiType = ChangeGutiType(gutiType);
                 MinMax(tempGutiType, --tempExplorationDepth, ref tempScore);
-                score -= tempScore;
+                score += tempScore;
             }
             if (maxScore < score)
             {
@@ -47,7 +54,7 @@ public class MinMaxAI
             } 
             else if (maxScore == score)
             {
-                if (Random.value > 0.5)
+                if (Random.value > 0.8)
                 {
                     maxScore = score;
                     selectedMove = move;
@@ -59,19 +66,19 @@ public class MinMaxAI
         return selectedMove;
     }
 
-    private int MoveGuti(Move move)
+    private int MoveGuti(Move move, GutiType gutiType)
     {
         if (move == null) return 0;
+        var captureScore = playerGutiType == gutiType ? _captureUnitScore : _loseUnitScore;
         _gutiMap.CaptureGuti(move.sourceAddress, move.targetAddress);
-        // _moveStack.Push(move);
-        return _gutiMap.HasCapturableGuti(move.sourceAddress, move.targetAddress) ? scoreUnit : 0;
+        return _gutiMap.HasCapturableGuti(move.sourceAddress, move.targetAddress) ? captureScore : 0;
     }
 
     private int MoveGutiV2(Move move, GutiMap gutiMap)
     {
         if (move == null) return 0;
         gutiMap.CaptureGuti(move.sourceAddress, move.targetAddress);
-        return gutiMap.HasCapturableGuti(move.sourceAddress, move.targetAddress) ? scoreUnit : 0;
+        return gutiMap.HasCapturableGuti(move.sourceAddress, move.targetAddress) ? 1 : 0;
     }
     
     private void ReverseMove(GutiType gutiType, Move hooch)
@@ -96,7 +103,7 @@ public class MinMaxAI
         var list = new List<Move>();
         foreach (var source in playerGutiAddress)
         {
-            IEnumerable<Address> walkableAddress = _gutiMap.GetWalkableNeighbours(source);
+            IEnumerable<Address> walkableAddress = _gutiMap.GetWalkableNodes(source);
             foreach (var target in walkableAddress) list.Add(new Move(source, target));
         }
         return list;
@@ -109,8 +116,7 @@ public class MinMaxAI
         for (var index = 0; index < moveList.Count; index++)
         {
             var move = moveList[index];
-            MoveGuti(move);
-            // gutiTypeTree.Add(_gutiMap.GetGutiTypeList());
+            MoveGuti(move, gutiType);
             gutiTypeTree.Add(_gutiMap.GetGutiTypeList());
             ReverseMove(gutiType, move);
         }

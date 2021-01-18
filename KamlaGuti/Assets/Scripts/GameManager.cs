@@ -141,7 +141,7 @@ public class GameManager : MonoBehaviour
         _stepEnded = true;
     }
 
-    private void DeclareWinner()
+    public void DeclareWinner()
     {
         _stepEnded = false;
         var winningGutiType = _playerMap[GutiType.GreenGuti].GetScore() > _playerMap[GutiType.RedGuti].GetScore() ? GutiType.GreenGuti : GutiType.RedGuti;
@@ -169,15 +169,26 @@ public class GameManager : MonoBehaviour
 
     public void ProcessInput(GameObject go)
     {
+        var guti = go.GetComponent<Guti>();
+        var player = _playerMap[_currentTurnGutiType];
         if (_playerMap[_currentTurnGutiType].playerType != PlayerType.Human)
         {
             var gu = go.GetComponent<Guti>();
-            Debug.Log(board.getGutiType(gu.address));
-            board.HighlightWalkableNeighbours(gu.address); 
+            // TODO: Make Button to HighLight Move that AI MinMax wants to take
+            // Debug.Log(board.getGutiType(gu.address));
+            // board.HighlightWalkableNodes(gu.address);
+            // player = _playerMap[guti.gutiType];
+            var AI = player.GetMinMaxAI();
+            AI._gutiMap = board.GetGutiMap();
+            int tempScore = 0;
+            var move = AI.MinMax(guti.gutiType, 1, ref tempScore);
+            Debug.Log(move);
+            ClearHighlights();
+            board.SpawnHighlightNode(move.sourceAddress, Color.blue);
+            board.SpawnHighlightNode(move.targetAddress, Color.blue);
             return;
         }
-        var guti = go.GetComponent<Guti>();
-        var player = _playerMap[_currentTurnGutiType];
+        
         if (guti.gutiType == GutiType.Highlight)
         {
             if(player.SelectedMove == null) return;
@@ -189,7 +200,7 @@ public class GameManager : MonoBehaviour
             var selectedAddress = guti.address;
             player.SelectedMove = new Move();
             player.SelectedMove.sourceAddress = selectedAddress;
-            board.HighlightWalkableNeighbours(selectedAddress);
+            board.HighlightWalkableNodes(selectedAddress);
         }
         else
             Debug.Log("Not your turn mate!");

@@ -24,6 +24,11 @@ public class Move
         this.targetAddress = targetAddress;
     }
 
+    public override string ToString()
+    {
+        return $"Source: {sourceAddress} || Target {targetAddress}";
+    }
+
     public Move()
     {
     }
@@ -57,7 +62,7 @@ public class Player
         _gutiType = gutiType;
         playerType = tPlayerType;
         SelectedMove = null;
-        if (playerType != PlayerType.Human) _minMaxAi = new MinMaxAI(gm.board.GetGutiMap(), gm.scoreUnit);
+        if (playerType != PlayerType.Human) _minMaxAi = new MinMaxAI(gm.board.GetGutiMap(), _gutiType, gm.scoreUnit);
     }
 
     public void ReInit()
@@ -127,6 +132,11 @@ public class Player
     
     public int GetScore() => CapturedGutiCount * _gameManager.scoreUnit;
 
+    public MinMaxAI GetMinMaxAI()
+    {
+        return _minMaxAi;
+    }
+    
     public override string ToString()
     {
         if (playerType != PlayerType.Ai)

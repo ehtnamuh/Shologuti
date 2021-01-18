@@ -43,7 +43,7 @@ public class GutiMap
     public void AddGuti(Address address, GutiNode gutiNode) => _gutiMap[address] = gutiNode;
 
 
-    public IEnumerable<Address> GetWalkableNeighbours(Address address)
+    public IEnumerable<Address> GetWalkableNodes(Address address)
     {
         var neighbourGutiNodes =  _gutiMap[address].ConnectedNeighbours;
         var walkableGutiNodes = new List<Address>();
@@ -112,24 +112,18 @@ public class GutiMap
     public Address GetCapturedGutiAddress(Address sourceAddress, Address targetAddress)
     {
         var capturedGutiAddress = targetAddress - sourceAddress;
+        if (capturedGutiAddress.x >= 4)
+        {
+            capturedGutiAddress = sourceAddress + capturedGutiAddress.GetDirectionVector() + capturedGutiAddress.GetDirectionVector();
+        }
         capturedGutiAddress = sourceAddress + capturedGutiAddress.GetDirectionVector();
         var connectedNeighbours = GetGutiNode(sourceAddress).ConnectedNeighbours;
         return connectedNeighbours.Contains(capturedGutiAddress) ? capturedGutiAddress : targetAddress;
     }
-
-
+    
     
     public IEnumerable<Address> GetGutisOfType(GutiType gutiType) => (from pair in _gutiMap where pair.Value.gutiType == gutiType select pair.Key).ToList();
 
     public List<float> GetGutiTypeList() => _gutiMap.Select(node => (float)node.Value.gutiType).ToList();
-    public List<int> ParrallelGetGutiTypeList()
-    {
-        List<int> gutiList = new List<int>();
-        Parallel.ForEach(_gutiMap, keyValuePair =>
-        {
-            // TODO: Causing Race Conditions here
-            gutiList.Add((int)keyValuePair.Value.gutiType);
-        });
-        return gutiList;
-    }
+
 }

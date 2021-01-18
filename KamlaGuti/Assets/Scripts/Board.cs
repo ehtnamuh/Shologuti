@@ -143,17 +143,23 @@ public class Board : MonoBehaviour
 		foreach (var node in _highlightedNodes) Destroy(node);
 	}
 
-	public void HighlightWalkableNeighbours(Address address)
+	public void SpawnHighlightNode(Address neighbourAddress, Color color)
+	{
+		var gutiGo = GameObject.Instantiate(gutiPrefab, gameObject.transform, true);
+		var guti = gutiGo.GetComponent<Guti>();
+		guti.SetAddress(neighbourAddress, scale: 1.0f);
+		guti.SetGutiType(GutiType.Highlight);
+		guti.SetGutiColor(color);
+		_highlightedNodes.Add(gutiGo);
+	}
+
+	public void HighlightWalkableNodes(Address address)
 	{
 		ClearHighlightedNodes();
-		var walkableNeighbours = _gutiMap.GetWalkableNeighbours(address);
+		var walkableNeighbours = _gutiMap.GetWalkableNodes(address);
 		foreach (var neighbourAddress in walkableNeighbours)
 		{
-			var gutiGo = GameObject.Instantiate(gutiPrefab, gameObject.transform, true);
-			var guti = gutiGo.GetComponent<Guti>();
-			guti.SetAddress(neighbourAddress, scale: 1.0f);
-			guti.SetGutiType(GutiType.Highlight);
-			_highlightedNodes.Add(gutiGo);
+			SpawnHighlightNode(neighbourAddress, Color.yellow);
 		}
 	}
 }
