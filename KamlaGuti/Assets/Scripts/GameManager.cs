@@ -125,7 +125,7 @@ public class GameManager : MonoBehaviour
         }
         var continueTurn = player.MakeMove();
         
-        if(player.CapturedGutiCount >= 16) SetGameEndState(_currentTurnGutiType);
+        if(player.CapturedGutiCount >= 16) DeclareWinner();
         // Update Score Board Immediately
         uiManager.UpdateScore(_currentTurnGutiType, player.ToString());
         // Check if Player should switch

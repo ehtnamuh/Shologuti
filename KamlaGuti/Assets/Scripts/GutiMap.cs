@@ -79,7 +79,6 @@ public class GutiMap
             if (!_gutiMap[neighbourGutiNodeAddress].ConnectedNeighbours.Contains(jumpAddress)) continue;
             if (_gutiMap[jumpAddress].gutiType == GutiType.NoGuti) return true;
         }
-
         return false;
     }
     

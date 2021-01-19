@@ -104,7 +104,8 @@ public class Player
         }
         _gameManager.board.MoveGuti(move);
         SelectedMove = null;
-        return HasTurnEnded(move);
+        if (_gameManager.board.HasCapturedGuti(move)) this.CapturedGutiCount++;
+        return CanContinueTurn(move);
     }
 
     public bool AgentMove(int maxIndex)
@@ -114,7 +115,8 @@ public class Player
         {
             var move = _moveList[maxIndex];
             _gameManager.board.MoveGuti(move);
-            return HasTurnEnded(move);
+            if (_gameManager.board.HasCapturedGuti(move)) this.CapturedGutiCount++;
+            return CanContinueTurn(move);
         }
         catch (Exception e)
         {
@@ -124,19 +126,12 @@ public class Player
         return true;
     }
 
-    public bool HasTurnEnded(Move move)
-    {
-        if (_gameManager.board.HasCapturedGuti(move)) this.CapturedGutiCount++;
-        return (_gameManager.board.HasCapturedGuti(move) && _gameManager.board.HasCapturableGuti(move.targetAddress));
-    }
-    
+    public bool CanContinueTurn(Move move) => (_gameManager.board.HasCapturedGuti(move) && _gameManager.board.HasCapturableGuti(move.targetAddress));
+
     public int GetScore() => CapturedGutiCount * _gameManager.scoreUnit;
 
-    public MinMaxAI GetMinMaxAI()
-    {
-        return _minMaxAi;
-    }
-    
+    public MinMaxAI GetMinMaxAI() => _minMaxAi;
+
     public override string ToString()
     {
         if (playerType != PlayerType.Ai)

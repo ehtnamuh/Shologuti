@@ -65,7 +65,7 @@ public class GutiAgent : Agent
         sensor.AddObservation(gutiList);
         // Debug.Log(sensor.GetName() + " || " + sensor.GetObservationShape());
     }
-
+    
     public override void OnActionReceived(float[] vectorAction)
     {
         // ML-Agent calls this function after end and begining of episode
