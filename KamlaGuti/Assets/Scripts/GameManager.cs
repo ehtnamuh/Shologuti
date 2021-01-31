@@ -70,6 +70,7 @@ public class GameManager : MonoBehaviour
         _currentTurnGutiType = Random.value > 0.5? GutiType.GreenGuti : GutiType.RedGuti;
         _currentStepCount = 0;
         InitPlayers();
+        
         InitScoreboard();
         _playerMap[GutiType.GreenGuti].agent = agent;
         Time.timeScale = 2.0f;
