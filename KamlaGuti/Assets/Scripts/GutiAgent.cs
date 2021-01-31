@@ -19,6 +19,10 @@ public class GutiAgent : Agent
     
     public override void Initialize()
     {
+        if (!Academy.Instance.IsCommunicatorOn)
+        {
+            this.MaxStep = 0;
+        }
         Init();
     }
 
@@ -56,43 +60,44 @@ public class GutiAgent : Agent
     {
         if (iterator < 0)
         {
-               var noObservation = new List<float>(new float[37]);
-               Debug.Log("This should not happen");
+               var noObservation = new List<float>(new float[38]);
+               Debug.Log("Collect Observation Called by Unity Housekeeping.. appending empty observation");
                sensor.AddObservation(noObservation);
                return;
         }
         var gutiList = _gutiTypeTree[iterator++];
         sensor.AddObservation(gutiList);
-        // Debug.Log(sensor.GetName() + " || " + sensor.GetObservationShape());
+        if (iterator < _gutiTypeTree.Count)
+            sensor.AddObservation(1.0f);
+        else
+            sensor.AddObservation(-2.0f);
     }
     
     public override void OnActionReceived(float[] vectorAction)
     {
-        // ML-Agent calls this function after end and begining of episode
+        // ML-Agent calls this function after end and beginning of episode
         // this check is to prevent actions from being taken then
         if (_gutiTypeTree == null && iterator < 0)
         {
             return;
         }
-        if (iterator < _gutiTypeTree.Count)
+        if (_gutiTypeTree != null && iterator < _gutiTypeTree.Count)
         {
-            // Debug.Log("we must request more actions");
             var val = vectorAction[0];
             if (val > maxValue)
             {
                 maxIndex = iterator <= 0? 0: iterator - 1;
                 maxValue = val;
             }
-            SetReward(-666);
+            SetReward(0);
             RequestDecision();
         }
         else
         {
-            Debug.Log("We should have the best state now");
             _gutiTypeTree = null;
-            // If no possible moves, (indicating end of game) iterator will be unset
             if (iterator == -1)
             {
+                // If no possible moves, (indicating end of game) iterator will be unset    
                 _gameManager.DeclareWinner();
                 return;
             }
@@ -105,10 +110,6 @@ public class GutiAgent : Agent
         }
     }
 
-    protected override void OnEnable()
-    {
-        base.OnEnable();
-    }
 
     protected override void OnDisable()
     {
@@ -118,6 +119,5 @@ public class GutiAgent : Agent
     public override void Heuristic(float[] actionsOut)
     {
         actionsOut[0] = Random.value;
-        // Debug.Log($"heuristic: {actionsOut[0]}");
     }
 }

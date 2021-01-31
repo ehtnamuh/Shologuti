@@ -9,7 +9,7 @@ public class GutiNode
     public List<Address> ConnectedNeighbours;
     public GutiType gutiType;
 
-    public GutiNode GetInstance()
+    public GutiNode GetCopy()
     {
         var instance = new GutiNode();
         instance.Address = Address;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class MinMaxAI
@@ -14,8 +15,8 @@ public class MinMaxAI
     {
         this._gutiMap = _gutiMap;
         this.playerGutiType = playerGutiType;
-        this._loseUnitScore = loseUnitScore == 0? -1: -Math.Abs(loseUnitScore) ;
-        this._captureUnitScore = captureUnitScore == 0? 1: Math.Abs(loseUnitScore);
+        this._loseUnitScore = loseUnitScore == 0? 1: Math.Abs(loseUnitScore) ;
+        this._captureUnitScore = captureUnitScore == 0? 1: Math.Abs(captureUnitScore);
     }
     
     // TODO: Need a way to check if game ended while exploring
@@ -32,7 +33,7 @@ public class MinMaxAI
             var tempExplorationDepth = explorationDepth;
             var score = 0;
             score += MoveGuti(move, gutiType);
-            if (_gutiMap.HasCapturableGuti(move.sourceAddress, move.targetAddress) && _gutiMap.HasCapturableGuti(move.targetAddress))
+            if (_gutiMap.CanCaptureGuti(move.sourceAddress, move.targetAddress) && _gutiMap.CanCaptureGuti(move.targetAddress))
             {
                 var tempScore = 0;
                 MinMax(gutiType, --tempExplorationDepth, ref tempScore);
@@ -43,7 +44,7 @@ public class MinMaxAI
                 var tempScore = 0;
                 var tempGutiType = ChangeGutiType(gutiType);
                 MinMax(tempGutiType, --tempExplorationDepth, ref tempScore);
-                score += tempScore;
+                score -= tempScore;
             }
             if (maxScore < score)
             {
@@ -69,14 +70,14 @@ public class MinMaxAI
         if (move == null) return 0;
         var captureScore = playerGutiType == gutiType ? _captureUnitScore : _loseUnitScore;
         _gutiMap.CaptureGuti(move.sourceAddress, move.targetAddress);
-        return _gutiMap.HasCapturableGuti(move.sourceAddress, move.targetAddress) ? captureScore : 0;
+        return _gutiMap.CanCaptureGuti(move.sourceAddress, move.targetAddress) ? captureScore : 0;
     }
 
     private int MoveGutiV2(Move move, GutiMap gutiMap)
     {
         if (move == null) return 0;
         gutiMap.CaptureGuti(move.sourceAddress, move.targetAddress);
-        return gutiMap.HasCapturableGuti(move.sourceAddress, move.targetAddress) ? 1 : 0;
+        return gutiMap.CanCaptureGuti(move.sourceAddress, move.targetAddress) ? 1 : 0;
     }
     
     private void ReverseMove(GutiType gutiType, Move hooch)
@@ -85,7 +86,7 @@ public class MinMaxAI
         // var move = _moveStack.Pop();
         var move = hooch;
         _gutiMap.MoveGuti(move.targetAddress, move.sourceAddress);
-        if (_gutiMap.HasCapturableGuti(move.sourceAddress, move.targetAddress))
+        if (_gutiMap.CanCaptureGuti(move.sourceAddress, move.targetAddress))
         {
             var capturedGuti = _gutiMap.GetCapturedGutiAddress(move.sourceAddress, move.targetAddress);
             var tempGutiType = ChangeGutiType(gutiType);
@@ -121,16 +122,15 @@ public class MinMaxAI
         return gutiTypeTree;
     }
     
-    // public 
     
-    public List<List<float>> ParallelGetGutiTypeTree(GutiType gutiType, List<Move> moveList)
+    public List<List<float>> ParallelGetGutiTypeTree(GutiType gutiType, List<Move> moveList, GutiMap meGutiMap)
     {
         // var moveList = ExtractMoves(gutiType);
         var gutiTypeTree = new List<List<float>>();
         object balanceLock = new object();
         Parallel.ForEach(moveList, move =>
         {
-            GutiMap gutiMap = new GutiMap(_gutiMap);
+            GutiMap gutiMap = new GutiMap(meGutiMap);
             MoveGutiV2(move, gutiMap);
             var gg = gutiMap.GetGutiTypeList();
             lock (balanceLock)

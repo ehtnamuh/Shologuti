@@ -28,7 +28,7 @@ public class Board : MonoBehaviour
 		// Creating Game objects to visually represent condition of GutiMap
 		foreach (var gutiNodeParent in _gutiNodesArray)
 		{
-			var gutiNode = gutiNodeParent.GetInstance();
+			var gutiNode = gutiNodeParent.GetCopy();
 			// All gutis, empty, green or red MUST be added to the logical GutiMap
 			_gutiMap.AddGuti(gutiNode.Address, gutiNode);
 			// if the gutiType is empty, No need to create Visual Game object
@@ -66,7 +66,7 @@ public class Board : MonoBehaviour
 		}
 	}
 
-	public bool HasCapturableGuti(Address address) => _gutiMap.HasCapturableGuti(address);
+	public bool HasCapturableGuti(Address address) => _gutiMap.CanCaptureGuti(address);
 
 	public bool HasCapturedGuti(Move move)
 	{

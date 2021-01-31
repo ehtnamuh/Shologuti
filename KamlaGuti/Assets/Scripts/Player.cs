@@ -42,7 +42,7 @@ public class Player
     private  MinMaxAI _minMaxAi;
     private  List<Move> _moveList;
     
-    public int CapturedGutiCount { get; set; }
+    public int CapturedGutiCount { get; private set; }
     public GutiAgent agent;
     public Move SelectedMove { get; set; }
     public  PlayerType playerType;
@@ -54,9 +54,9 @@ public class Player
         Init(gutiType, tPlayerType, gm, explorationDepth);
     }
 
-    public void Init(GutiType gutiType, PlayerType tPlayerType, GameManager gm, int explorationDepth = 1)
+    private void Init(GutiType gutiType, PlayerType tPlayerType, GameManager gm, int explorationDepth = 1)
     {
-        _explorationDepth = explorationDepth;
+        _explorationDepth = explorationDepth<=0? 1: explorationDepth;
         _gameManager = gm;
         CapturedGutiCount = 0;
         _gutiType = gutiType;
@@ -92,9 +92,8 @@ public class Player
             {
                 _minMaxAi._gutiMap = _gameManager.board.GetGutiMap();
                 _moveList = _minMaxAi.ExtractMoves(_gutiType);
-                // var gutiTypeTree = _minMaxAi.GetGutiTypeTree(_gutiType, _moveList);
-                // agent.PopulateGutiTypeTree(gutiTypeTree);
-                var gutiTypeTree = _minMaxAi.ParallelGetGutiTypeTree(_gutiType, _moveList);
+                var gutiTypeTree = _minMaxAi.GetGutiTypeTree(_gutiType, _moveList);
+                // var gutiTypeTree = _minMaxAi.ParallelGetGutiTypeTree(_gutiType, _moveList, gutiMap);
                 agent.PopulateGutiTypeTree(gutiTypeTree);
                 agent.RequestDecision();
                 return true;
@@ -104,10 +103,10 @@ public class Player
         }
         _gameManager.board.MoveGuti(move);
         SelectedMove = null;
-        if (_gameManager.board.HasCapturedGuti(move)) this.CapturedGutiCount++;
+        UpdateScore(move);
         return CanContinueTurn(move);
     }
-
+    
     public bool AgentMove(int maxIndex)
     {
         if(playerType != PlayerType.RLA) Debug.Log("not RLA Agent");
@@ -115,9 +114,10 @@ public class Player
         {
             var move = _moveList[maxIndex];
             _gameManager.board.MoveGuti(move);
-            if (_gameManager.board.HasCapturedGuti(move)) this.CapturedGutiCount++;
+            UpdateScore(move);
+            agent.SetReward(GetScore());
             return CanContinueTurn(move);
-        }
+        }           
         catch (Exception e)
         {
             Debug.Log("AgentMove in Player Broke at Index:" + maxIndex);
@@ -125,12 +125,17 @@ public class Player
         }
         return true;
     }
+    
+    private void UpdateScore(Move move)
+    {
+        if (_gameManager.board.HasCapturedGuti(move)) this.CapturedGutiCount++;
+    }
 
-    public bool CanContinueTurn(Move move) => (_gameManager.board.HasCapturedGuti(move) && _gameManager.board.HasCapturableGuti(move.targetAddress));
+    private bool CanContinueTurn(Move move) => (_gameManager.board.HasCapturedGuti(move) && _gameManager.board.HasCapturableGuti(move.targetAddress));
 
     public int GetScore() => CapturedGutiCount * _gameManager.scoreUnit;
 
-    public MinMaxAI GetMinMaxAI() => _minMaxAi;
+    public MinMaxAI GetMinMaxAi() => _minMaxAi;
 
     public override string ToString()
     {

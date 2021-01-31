@@ -1,25 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Unity.Jobs;
 using UnityEngine;
 
 public class GutiMap
 {
     private Dictionary<Address, GutiNode> _gutiMap;
 
-    public Dictionary<Address, GutiNode> GetGutiMap()
-    {
-        return _gutiMap;
-    }
-    
+    public Dictionary<Address, GutiNode> GetGutiMap() => _gutiMap;
+
     public GutiMap(GutiMap gutiMap)
     {
         _gutiMap = new Dictionary<Address, GutiNode>();
         foreach (var node in gutiMap.GetGutiMap())
         {
-            _gutiMap.Add(node.Key, node.Value.GetInstance());
+            _gutiMap.Add(node.Key, node.Value.GetCopy());
         }
     }
 
@@ -38,10 +33,8 @@ public class GutiMap
         }
         
     }
-
     public GutiType GetGutiType(Address add) => GetGutiNode(add).gutiType;
     public void AddGuti(Address address, GutiNode gutiNode) => _gutiMap[address] = gutiNode;
-
 
     public IEnumerable<Address> GetWalkableNodes(Address address)
     {
@@ -65,7 +58,7 @@ public class GutiMap
         return walkableGutiNodes;
     }
 
-    public bool HasCapturableGuti(Address address)
+    public bool CanCaptureGuti(Address address)
     {
         var neighbourGutiNodes =  _gutiMap[address].ConnectedNeighbours;
         for (var index = 0; index < neighbourGutiNodes.Count; index++)
@@ -82,14 +75,13 @@ public class GutiMap
         return false;
     }
     
-    public bool HasCapturableGuti(Address sourceAddress, Address targetAddress)
+    public bool CanCaptureGuti(Address sourceAddress, Address targetAddress)
     {
         var capturedGutiAddress = GetCapturedGutiAddress(sourceAddress, targetAddress);
         return capturedGutiAddress != targetAddress;
     }
     
-    // Moves guti on logical board
-    // does not check for Validity of Move
+    // Moves guti on logical board does not check for Validity of Move
     public void CaptureGuti(Address sourceAddress, Address targetAddress)
     {
         RemoveGuti(GetCapturedGutiAddress(sourceAddress, targetAddress)); // if no captured guti, sets Guti at target address to no guti
@@ -111,11 +103,10 @@ public class GutiMap
     public Address GetCapturedGutiAddress(Address sourceAddress, Address targetAddress)
     {
         var capturedGutiAddress = targetAddress - sourceAddress;
-        if (capturedGutiAddress.x >= 4)
-        {
-            capturedGutiAddress = sourceAddress + capturedGutiAddress.GetDirectionVector() + capturedGutiAddress.GetDirectionVector();
-        }
-        capturedGutiAddress = sourceAddress + capturedGutiAddress.GetDirectionVector();
+        if (Math.Abs(capturedGutiAddress.x) >= 3)
+            capturedGutiAddress = sourceAddress + capturedGutiAddress.GetDirectionVector() * 2;
+        else
+            capturedGutiAddress = sourceAddress + capturedGutiAddress.GetDirectionVector();
         var connectedNeighbours = GetGutiNode(sourceAddress).ConnectedNeighbours;
         return connectedNeighbours.Contains(capturedGutiAddress) ? capturedGutiAddress : targetAddress;
     }

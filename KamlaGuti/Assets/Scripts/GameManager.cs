@@ -83,7 +83,7 @@ public class GameManager : MonoBehaviour
             // _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.Human, this);
             // _playerMap[GutiType.RedGuti] = new Player(GutiType.RedGuti, PlayerType.Human, this);
             _playerMap[GutiType.RedGuti] = new Player(GutiType.RedGuti, PlayerType.Ai, this, 1);
-            // _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.Ai, this, 1);
+            // _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.Ai, this, 3);
             _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.RLA, this);
         }
         else
@@ -109,7 +109,7 @@ public class GameManager : MonoBehaviour
         if(!_stepEnded) return;
         _stepEnded = false;
         // Checking Maximum Step per Episode
-        Debug.Log("Step");
+        // Debug.Log("Step");
         if(_currentStepCount > maxStepCount){ DeclareWinner(); return;}
         _currentStepCount++;
         // Taking appropriate Actions According to Player type
@@ -178,13 +178,13 @@ public class GameManager : MonoBehaviour
             // Debug.Log(board.getGutiType(gu.address));
             // board.HighlightWalkableNodes(gu.address);
             // player = _playerMap[guti.gutiType];
-            var AI = player.GetMinMaxAI();
+            var AI = player.GetMinMaxAi();
             AI._gutiMap = board.GetGutiMap();
             int tempScore = 0;
             var move = AI.MinMax(guti.gutiType, 1, ref tempScore);
             Debug.Log(move);
             ClearHighlights();
-            board.SpawnHighlightNode(move.sourceAddress, Color.blue);
+            board.SpawnHighlightNode(move.sourceAddress, Color.white);
             board.SpawnHighlightNode(move.targetAddress, Color.blue);
             return;
         }
@@ -201,6 +201,7 @@ public class GameManager : MonoBehaviour
             player.SelectedMove = new Move();
             player.SelectedMove.sourceAddress = selectedAddress;
             board.HighlightWalkableNodes(selectedAddress);
+            board.SpawnHighlightNode(player.SelectedMove.sourceAddress, Color.white);
         }
         else
             Debug.Log("Not your turn mate!");
