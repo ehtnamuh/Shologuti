@@ -16,10 +16,12 @@ public class GutiAgent : Agent
     
     public override void Initialize()
     {
-        if (!Academy.Instance.IsCommunicatorOn)
-        {
-            this.MaxStep = 0;
-        }
+        // if (!Academy.Instance.IsCommunicatorOn)
+        // {
+        //     this.MaxStep = 0;
+        // }
+        // This is to prevent the agent being reset by MlAgents Academy 
+        this.MaxStep = 0;
         Init();
     }
 
@@ -36,9 +38,9 @@ public class GutiAgent : Agent
     public override void OnEpisodeBegin()
     {
         Init();
-        gameManager.Restart();
+        if (gameManager.GetGameState() == GameState.GreenWin || gameManager.GetGameState() == GameState.RedWin || gameManager.GetGameState() == GameState.Draw)
+            gameManager.Restart();
     }
-    
     
 
     public void PopulateGutiTypeTree(List<List<float>> gutiTypeTree)
@@ -53,7 +55,7 @@ public class GutiAgent : Agent
     {
         if (iterator < 0)
         {
-               Debug.Log("Collect Observation Called by Unity Housekeeping.. appending empty observation");
+               // Debug.Log("Collect Observation Called by Unity Housekeeping.. appending empty observation");
                sensor.AddObservation(new List<float>(new float[38]));
                return;
         }
@@ -68,6 +70,7 @@ public class GutiAgent : Agent
     
     public override void OnActionReceived(float[] vectorAction)
     {
+        Debug.Log(vectorAction.Length);
         if (_gutiTypeTree == null)
             return;
         if (iterator < _gutiTypeTree.Count)

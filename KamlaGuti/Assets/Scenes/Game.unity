@@ -1555,7 +1555,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 100
+  MaxStep: 1000
   gameManager: {fileID: 424579931}
   gutiType: 1
 --- !u!114 &2138789150
@@ -1576,7 +1576,7 @@ MonoBehaviour:
     VectorActionSize: 01000000
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
-  m_Model: {fileID: 5022602860645237092, guid: ead69dbe3bdccaa4485f94f611d96155, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 3a396e366899445469fad5d7235e5fc6, type: 3}
   m_InferenceDevice: 1
   m_BehaviorType: 0
   m_BehaviorName: GutiBehaviour

@@ -151,7 +151,7 @@ public class GameManager : MonoBehaviour
         SetGameEndState(winningGutiType);
         if (_playerMap[GutiType.GreenGuti].playerType != PlayerType.RLA &&
             _playerMap[GutiType.RedGuti].playerType != PlayerType.RLA) return;
-        if(autoPlay) agent.EndEpisode();
+        if (autoPlay) agent.EndEpisode();
     }
 
     #endregion
