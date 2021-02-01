@@ -18,7 +18,7 @@ public class InputHandler : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(worldPosition, new Vector3(0, 0, 1), 1000);
         if (hit)
         {
-            _gameManager.ProcessInput(hit.collider.gameObject);
+            _gameManager.ProcessHumanInput(hit.collider.gameObject);
         }
         else
             _gameManager.ClearHighlights();

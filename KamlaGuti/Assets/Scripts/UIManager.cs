@@ -66,6 +66,10 @@ public class UIManager : MonoBehaviour
                 GameStatusText.color = Color.white;
                 PauseBtnText.text = "Pause";
                 break;
+            case GameState.Draw:
+                GameStatusText.text = "Draw";
+                GameStatusText.color = Color.white;
+                break;
         }
     }
 

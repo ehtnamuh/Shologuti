@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
@@ -8,8 +6,7 @@ using Random = UnityEngine.Random;
 
 public class GutiAgent : Agent
 {
-    public GameObject _gameManagetGO;
-    public GameManager _gameManager;
+    [SerializeField] private GameManager gameManager;
     private List<List<float>> _gutiTypeTree;
     public GutiType gutiType;
     
@@ -26,14 +23,10 @@ public class GutiAgent : Agent
         Init();
     }
 
-    private void Awake()
-    {
-        Init();
-    }
+    private void Awake() => Init();
 
     private void Init()
     {
-        _gameManager = _gameManagetGO.GetComponent<GameManager>();
         iterator = -1;
         maxIndex = -1;
         maxValue = -1;
@@ -43,26 +36,25 @@ public class GutiAgent : Agent
     public override void OnEpisodeBegin()
     {
         Init();
+        gameManager.Restart();
     }
+    
+    
 
     public void PopulateGutiTypeTree(List<List<float>> gutiTypeTree)
     {
         _gutiTypeTree = gutiTypeTree;
         if (_gutiTypeTree.Count > 0) iterator = 0;
         else
-        {
-            Debug.Log("Should Set the game to restart here");
-            _gameManager.DeclareWinner();
-        }
+            gameManager.DeclareWinner();
     }
 
     public override void CollectObservations(VectorSensor sensor)
     {
         if (iterator < 0)
         {
-               var noObservation = new List<float>(new float[38]);
                Debug.Log("Collect Observation Called by Unity Housekeeping.. appending empty observation");
-               sensor.AddObservation(noObservation);
+               sensor.AddObservation(new List<float>(new float[38]));
                return;
         }
         var gutiList = _gutiTypeTree[iterator++];
@@ -73,48 +65,39 @@ public class GutiAgent : Agent
             sensor.AddObservation(-2.0f);
     }
     
+    
     public override void OnActionReceived(float[] vectorAction)
     {
-        // ML-Agent calls this function after end and beginning of episode
-        // this check is to prevent actions from being taken then
-        if (_gutiTypeTree == null && iterator < 0)
-        {
+        if (_gutiTypeTree == null)
             return;
-        }
-        if (_gutiTypeTree != null && iterator < _gutiTypeTree.Count)
+        if (iterator < _gutiTypeTree.Count)
         {
-            var val = vectorAction[0];
-            if (val > maxValue)
-            {
-                maxIndex = iterator <= 0? 0: iterator - 1;
-                maxValue = val;
-            }
+            UpdateMaxState(vectorAction[0]);
             SetReward(0);
             RequestDecision();
         }
         else
         {
-            _gutiTypeTree = null;
-            if (iterator == -1)
+            if (iterator < 0)
             {
-                // If no possible moves, (indicating end of game) iterator will be unset    
-                _gameManager.DeclareWinner();
+                gameManager.DeclareWinner(); // If no possible moves, (indicating end of game) iterator will be unset    
                 return;
             }
             // If only one move was available, maxIndex will be unset
             if (maxIndex == -1) maxIndex = 0;
-            _gameManager.AgentMove(gutiType, maxIndex);
-            iterator = -1;
-            maxIndex = -1;
-            maxValue = -1;
+            gameManager.AgentMove(gutiType, maxIndex);
+            gameManager.UnlockStep();
+            Init();
         }
     }
 
-
-    protected override void OnDisable()
+    private void UpdateMaxState(float val)
     {
-        // base.OnDisable();
+        if (!(val > maxValue)) return;
+        maxIndex = iterator <= 0 ? 0 : iterator - 1;
+        maxValue = val;
     }
+
 
     public override void Heuristic(float[] actionsOut)
     {

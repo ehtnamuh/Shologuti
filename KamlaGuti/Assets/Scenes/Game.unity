@@ -677,8 +677,8 @@ MonoBehaviour:
   uiManager: {fileID: 0}
   agent: {fileID: 2138789149}
   scoreUnit: 1
-  maxStepCount: 500
-  isTraining: 0
+  maxStepCount: 200
+  autoPlay: 1
 --- !u!114 &424579932
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1555,9 +1555,8 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
-  _gameManagetGO: {fileID: 424579928}
-  _gameManager: {fileID: 424579931}
+  MaxStep: 100
+  gameManager: {fileID: 424579931}
   gutiType: 1
 --- !u!114 &2138789150
 MonoBehaviour:
@@ -1577,7 +1576,7 @@ MonoBehaviour:
     VectorActionSize: 01000000
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: ead69dbe3bdccaa4485f94f611d96155, type: 3}
   m_InferenceDevice: 1
   m_BehaviorType: 0
   m_BehaviorName: GutiBehaviour

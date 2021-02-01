@@ -137,9 +137,7 @@ public class Board : MonoBehaviour
 
 	public void ClearHighlightedNodes()
 	{
-		// very inefficiently clearing highligts
 		// TODO: Have a enabled and disabled highlightedNode Stack and queue 
-		// enabled nodes go from disabled stack to enabled stack and vice versa
 		foreach (var node in _highlightedNodes) Destroy(node);
 	}
 
@@ -151,6 +149,13 @@ public class Board : MonoBehaviour
 		guti.SetGutiType(GutiType.Highlight);
 		guti.SetGutiColor(color);
 		_highlightedNodes.Add(gutiGo);
+	}
+
+	public void HighlightMove(Move move)
+	{
+		ClearHighlightedNodes();
+		SpawnHighlightNode(move.sourceAddress, Color.white);
+		SpawnHighlightNode(move.targetAddress, Color.blue);
 	}
 
 	public void HighlightWalkableNodes(Address address)
