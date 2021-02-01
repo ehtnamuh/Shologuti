@@ -84,7 +84,6 @@ public class Player
             {
                 _minMaxAi.gutiMap = _gameManager.board.GetGutiMap();
                 var _ = 0;
-                Debug.Log($"{_gutiType}: {_explorationDepth}");
                 move = _minMaxAi.MinMax(_gutiType, _explorationDepth, ref _);
                 break;
             }
