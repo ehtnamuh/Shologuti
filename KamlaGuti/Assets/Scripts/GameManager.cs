@@ -74,8 +74,8 @@ public class GameManager : MonoBehaviour
             // _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.Human, this);
             // _playerMap[GutiType.RedGuti] = new Player(GutiType.RedGuti, PlayerType.Human, this);
             _playerMap[GutiType.RedGuti] = new Player(GutiType.RedGuti, PlayerType.AI, this, 1);
-            _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.AI, this, 3);
-            // _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.RLA, this);
+            // _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.AI, this, 3);
+            _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.RLA, this);
         }
         else
         {
@@ -151,7 +151,7 @@ public class GameManager : MonoBehaviour
         SetGameEndState(winningGutiType);
         if (_playerMap[GutiType.GreenGuti].playerType != PlayerType.RLA &&
             _playerMap[GutiType.RedGuti].playerType != PlayerType.RLA) return;
-        if(autoPlay) agent.EndEpisode();
+        if (autoPlay) agent.EndEpisode();
     }
 
     #endregion
