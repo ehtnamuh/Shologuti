@@ -70,7 +70,6 @@ public class GutiAgent : Agent
     
     public override void OnActionReceived(float[] vectorAction)
     {
-        Debug.Log(vectorAction.Length);
         if (_gutiTypeTree == null)
             return;
         if (iterator < _gutiTypeTree.Count)
