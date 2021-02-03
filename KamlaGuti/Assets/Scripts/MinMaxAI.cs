@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Random = UnityEngine.Random;
 
@@ -18,15 +19,14 @@ public class MinMaxAI
         this._captureUnitScore = captureUnitScore == 0? 1: Math.Abs(captureUnitScore);
     }
     
-    // TODO: Need a way to check if game ended while exploring
     public Move MinMax(GutiType gutiType, int explorationDepth, ref int projectedScore)
     {
         if(explorationDepth <= 0) return null;
         var moveList = ExtractMoves(gutiType);
+        var maxValueMoveList = new List<Move>();
         var maxScore = -2;
         // MoveList.Count 0 indicates end of game
         if (moveList.Count <= 0) return null;
-        var selectedMove = moveList[0];
         foreach (var move in moveList)
         {
             var tempExplorationDepth = explorationDepth;
@@ -49,20 +49,18 @@ public class MinMaxAI
             if (maxScore < score)
             {
                 maxScore = score;
-                selectedMove = move;
+                if(maxValueMoveList.Any())
+                    maxValueMoveList.Clear();
+                maxValueMoveList.Add(move);
             } 
             else if (maxScore == score)
             {
-                if (Random.value > 0.8)
-                {
-                    maxScore = score;
-                    selectedMove = move;
-                }
+                maxValueMoveList.Add(move);
             }
             ReverseMove(gutiType, move);
         }
         projectedScore = maxScore;
-        return selectedMove;
+        return maxValueMoveList[Random.Range(0, maxValueMoveList.Count())];
     }
 
     private void MoveGuti(Move move, GutiType gutiType)
