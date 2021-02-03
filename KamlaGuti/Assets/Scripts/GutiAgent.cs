@@ -88,6 +88,8 @@ public class GutiAgent : Agent
             // If only one move was available, maxIndex will be unset
             if (maxIndex == -1) maxIndex = 0;
             gameManager.AgentMove(gutiType, maxIndex);
+            var reward = gameManager.GetScoreDifference(gutiType) / 16.0f;
+            SetReward(reward);
             gameManager.UnlockStep();
             Init();
         }

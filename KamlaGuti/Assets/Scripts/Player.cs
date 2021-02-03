@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Unity.MLAgents;
 using UnityEngine;
 
 public enum PlayerType
@@ -119,7 +118,6 @@ public class Player
             var move = _moveList[maxIndex];
             _gameManager.board.MoveGuti(move);
             UpdateScore(move);
-            agent.SetReward(GetScore());
             return move;
         }           
         catch (Exception e)
@@ -134,12 +132,12 @@ public class Player
 
     private void UpdateScore(Move move)
     {
-        if (_gameManager.board.HasCapturedGuti(move)) this.CapturedGutiCount++;
+        if (_gameManager.board.HasCapturedGuti(move)) CapturedGutiCount++;
     }
 
     public bool CanContinueTurn(Move move) => (_gameManager.board.HasCapturedGuti(move) && _gameManager.board.HasCapturableGuti(move.targetAddress));
 
-    public int GetScore() => CapturedGutiCount * _gameManager.scoreUnit;
+    public float GetScore() => CapturedGutiCount * _gameManager.scoreUnit;
 
     public MinMaxAI GetMinMaxAi() => _minMaxAi;
 
@@ -147,8 +145,7 @@ public class Player
     {
         if (playerType != PlayerType.AI)
             return $"Type: {playerType}\nColor: {_gutiType}\nScore: {CapturedGutiCount}";
-        else
-            return $"Type: {playerType}\nDepth: {_explorationDepth}\nColor: {_gutiType}\nScore: {CapturedGutiCount}";
+        return $"Type: {playerType}\nDepth: {_explorationDepth}\nColor: {_gutiType}\nScore: {CapturedGutiCount}";
     }
     
 }
