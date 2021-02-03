@@ -101,5 +101,11 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void Restart() => _gameManager.Restart();
+    public void Restart()
+    {
+        _gameManager.DeclareWinner();
+        _gameManager.Restart();  
+    } 
+        
+    
 }

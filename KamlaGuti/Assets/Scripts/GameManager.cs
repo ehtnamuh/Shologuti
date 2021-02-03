@@ -215,7 +215,15 @@ public class GameManager : MonoBehaviour
     public void ClearHighlights() => board.ClearHighlightedNodes();
 
     #endregion
-    
+
+
+    public float GetScoreDifference(GutiType gutiType)
+    {
+        if (gutiType == GutiType.GreenGuti)
+            return _playerMap[GutiType.GreenGuti].GetScore() - _playerMap[GutiType.RedGuti].GetScore();
+        return _playerMap[GutiType.RedGuti].GetScore() - _playerMap[GutiType.GreenGuti].GetScore();
+    }
+
     public GutiType GetCurrentGutiType() => _currentTurnGutiType;
 
     public void ChangeTurn() => _currentTurnGutiType = _currentTurnGutiType == GutiType.GreenGuti ? GutiType.RedGuti : GutiType.GreenGuti;
