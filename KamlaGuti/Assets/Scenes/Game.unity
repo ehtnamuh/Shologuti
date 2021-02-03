@@ -677,7 +677,7 @@ MonoBehaviour:
   uiManager: {fileID: 0}
   agent: {fileID: 2138789149}
   scoreUnit: 1
-  maxStepCount: 500
+  maxStepCount: 200
   autoPlay: 1
 --- !u!114 &424579932
 MonoBehaviour:
