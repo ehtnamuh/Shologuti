@@ -57,7 +57,7 @@ public class Player
         {
             case PlayerType.AI:
             {
-                _minMaxAi.gutiMap = _gameManager.GetBoard().GetGutiMap();
+                _gameManager.GetBoard().GetGutiMap();
                 var _ = 0;
                 move = _minMaxAi.MinMax(_gutiType, _explorationDepth, ref _);
                 break;
@@ -72,7 +72,7 @@ public class Player
                 var simulator = _gameManager.simulator;
                 simulator.gutiMap = _gameManager.GetBoard().GetGutiMap();
                 _moveList = simulator.ExtractMoves(_gutiType);
-                var gutiTypeTree = simulator.GetGutiTypeTree(_gutiType, _moveList);
+                var gutiTypeTree = simulator.GetBoardMapAsList(_gutiType, _moveList);
                 agent.PopulateGutiTypeTree(gutiTypeTree);
                 agent.RequestDecision();
                 return null;

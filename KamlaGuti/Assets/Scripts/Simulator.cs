@@ -4,8 +4,8 @@ using UnityEngine;
 public class Simulator : MonoBehaviour
 {
     [SerializeField] private Board board;
-    [SerializeField] private int _captureUnitScore;
-    [SerializeField] private int _loseUnitScore;
+    [SerializeField] private int minMaxReward = 1;
+    [SerializeField] private int minMaxPenalty = 1;
     public GutiMap gutiMap;
 
 
@@ -21,7 +21,7 @@ public class Simulator : MonoBehaviour
     
     public int PredictMoveValue(Move move, GutiType playerGutiType ,GutiType gutiType)
     {
-        var captureScore = playerGutiType == gutiType ? _captureUnitScore : _loseUnitScore;
+        var captureScore = playerGutiType == gutiType ? minMaxReward : minMaxPenalty;
         return gutiMap.CanCaptureGuti(move.sourceAddress, move.targetAddress) ? captureScore : 0;
     }
     
@@ -47,7 +47,7 @@ public class Simulator : MonoBehaviour
         return list;
     }
 
-    public List<List<float>> GetGutiTypeTree(GutiType gutiType, List<Move> moveList)
+    public List<List<float>> GetBoardMapAsList(GutiType gutiType, List<Move> moveList)
     {
         var gutiTypeTree = new List<List<float>>();
         for (var index = 0; index < moveList.Count; index++)

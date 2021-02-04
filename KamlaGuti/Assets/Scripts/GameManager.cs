@@ -189,7 +189,6 @@ public class GameManager : MonoBehaviour
             // TODO: Make Button to HighLight Move that AI MinMax wants to take
             var ai = player.GetMinMaxAi();
             var projectedScore = 0;
-            ai.gutiMap = board.GetGutiMap();
             var move = ai.MinMax(guti.gutiType, 1, ref projectedScore);
             board.HighlightMove(move);
             return;

@@ -120,20 +120,11 @@ public class Board : MonoBehaviour
 		
 	}
 
-	public GutiType getGutiType(Address address)
-	{
-		return _gutiMap.GetGutiType(address);
-	}
-	
-	public void ReverseLastMove()
-	{
-		throw new NotImplementedException();
-	}
+	public GutiType getGutiType(Address address) => _gutiMap.GetGutiType(address);
 
-	public void GetLastMove()
-	{
-		throw new NotImplementedException();
-	}
+	public void ReverseLastMove() => throw new NotImplementedException();
+
+	public void GetLastMove() => throw new NotImplementedException();
 
 	public void ClearHighlightedNodes()
 	{

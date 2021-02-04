@@ -6,7 +6,6 @@ using Random = UnityEngine.Random;
 
 public class MinMaxAi
 {
-    public GutiMap gutiMap;
     private readonly Simulator _simulator;
     private readonly GutiType _playerGutiType;
     private readonly int _captureUnitScore;
@@ -14,10 +13,10 @@ public class MinMaxAi
 
     public MinMaxAi(GutiType playerGutiType, Simulator simulator,int captureUnitScore = 1, int loseUnitScore = 1)
     {
-        this._simulator = simulator;
-        this._playerGutiType = playerGutiType;
-        this._loseUnitScore = loseUnitScore == 0? 1: Math.Abs(loseUnitScore) ;
-        this._captureUnitScore = captureUnitScore == 0? 1: Math.Abs(captureUnitScore);
+        _simulator = simulator;
+        _playerGutiType = playerGutiType;
+        _loseUnitScore = loseUnitScore == 0? 1: Math.Abs(loseUnitScore) ;
+        _captureUnitScore = captureUnitScore == 0? 1: Math.Abs(captureUnitScore);
     }
     
     public Move MinMax(GutiType gutiType, int explorationDepth, ref int projectedScore)
