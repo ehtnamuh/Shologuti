@@ -44,9 +44,9 @@ public class Board : MonoBehaviour
 
 	private void LoadFromJson()
 	{
-		TextAsset textAsset = Resources.Load<TextAsset>("Board");
-		string data = textAsset.text;
-		GutiNodes fromJson = JsonUtility.FromJson<GutiNodes>(data);
+		var textAsset = Resources.Load<TextAsset>("Board");
+		var data = textAsset.text;
+		var fromJson = JsonUtility.FromJson<GutiNodes>(data);
 		_gutiNodesArray = fromJson.gutiArray;
 	}
 
@@ -57,7 +57,7 @@ public class Board : MonoBehaviour
 		Init();
 	}
 
-	public void DeleteAllGutiGo()
+	private void DeleteAllGutiGo()
 	{
 		foreach (var gutiGo in _gutiGoMap.ToList())
 		{
@@ -66,7 +66,7 @@ public class Board : MonoBehaviour
 		}
 	}
 
-	public bool HasCapturableGuti(Address address) => _gutiMap.CanCaptureGuti(address);
+	public bool CanCaptureGuti(Address address) => _gutiMap.CanCaptureGuti(address);
 
 	public bool HasCapturedGuti(Move move)
 	{
@@ -120,20 +120,11 @@ public class Board : MonoBehaviour
 		
 	}
 
-	public GutiType getGutiType(Address address)
-	{
-		return _gutiMap.GetGutiType(address);
-	}
-	
-	public void ReverseLastMove()
-	{
-		throw new NotImplementedException();
-	}
+	public GutiType getGutiType(Address address) => _gutiMap.GetGutiType(address);
 
-	public void GetLastMove()
-	{
-		throw new NotImplementedException();
-	}
+	public void ReverseLastMove() => throw new NotImplementedException();
+
+	public void GetLastMove() => throw new NotImplementedException();
 
 	public void ClearHighlightedNodes()
 	{
@@ -162,9 +153,6 @@ public class Board : MonoBehaviour
 	{
 		ClearHighlightedNodes();
 		var walkableNeighbours = _gutiMap.GetWalkableNodes(address);
-		foreach (var neighbourAddress in walkableNeighbours)
-		{
-			SpawnHighlightNode(neighbourAddress, Color.yellow);
-		}
+		foreach (var neighbourAddress in walkableNeighbours) SpawnHighlightNode(neighbourAddress, Color.yellow);
 	}
 }

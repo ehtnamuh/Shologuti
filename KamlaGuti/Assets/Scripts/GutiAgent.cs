@@ -48,7 +48,10 @@ public class GutiAgent : Agent
         _gutiTypeTree = gutiTypeTree;
         if (_gutiTypeTree.Count > 0) iterator = 0;
         else
+        {
+            Debug.Log("Never even here");
             gameManager.DeclareWinner();
+        }
     }
 
     public override void CollectObservations(VectorSensor sensor)

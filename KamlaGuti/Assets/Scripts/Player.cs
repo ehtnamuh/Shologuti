@@ -10,42 +10,18 @@ public enum PlayerType
     
 }
 
-public class Move
-{
-    public Address sourceAddress;
-    public Address targetAddress;
-    public GutiType capturedGutiType;
-    public GutiType sourceGutiType;
-
-    public Move(Address sourceAddress, Address targetAddress)
-    {
-        this.sourceAddress = sourceAddress;
-        this.targetAddress = targetAddress;
-    }
-
-    public override string ToString()
-    {
-        return $"Source: {sourceAddress} || Target {targetAddress}";
-    }
-
-    public Move()
-    {
-    }
-}
-
-
 public class Player
 {
     private  GutiType _gutiType;
     private  GameManager _gameManager;
-    private  MinMaxAI _minMaxAi;
+    private  MinMaxAi _minMaxAi;
     private  List<Move> _moveList;
     
     public int CapturedGutiCount { get; private set; }
     public GutiAgent agent;
     public Move SelectedMove { get; set; }
-    public  PlayerType playerType;
-    
+    public PlayerType PlayerType { get; private set; }
+
     private int _explorationDepth;
     
     
@@ -54,16 +30,16 @@ public class Player
         Init(gutiType, tPlayerType, gm, explorationDepth);
     }
 
-    private void Init(GutiType gutiType, PlayerType tPlayerType, GameManager gm, int explorationDepth = -1)
+    private void Init(GutiType gutiType, PlayerType tPlayerType, GameManager gameManager, int explorationDepth = -1)
     {
         _explorationDepth = explorationDepth<=0? 1: explorationDepth;
-        _gameManager = gm;
-        CapturedGutiCount = 0;
+        _gameManager = gameManager;
         _gutiType = gutiType;
-        playerType = tPlayerType;
+        PlayerType = tPlayerType;
+        CapturedGutiCount = 0;
         SelectedMove = null;
-        if (playerType != PlayerType.Human) _minMaxAi = new MinMaxAI(gm.board.GetGutiMap(), _gutiType, gm.scoreUnit);
-        if (playerType != PlayerType.RLA) return;
+        if (PlayerType != PlayerType.Human) _minMaxAi = new MinMaxAi(_gutiType, gameManager.simulator);
+        if (PlayerType != PlayerType.RLA) return;
         agent = _gameManager.agent;
         agent.gutiType = _gutiType;
     }
@@ -77,11 +53,11 @@ public class Player
     public Move MakeMove()
     {
         Move move;
-        switch (playerType)
+        switch (PlayerType)
         {
             case PlayerType.AI:
             {
-                _minMaxAi.gutiMap = _gameManager.board.GetGutiMap();
+                _gameManager.GetBoard().GetGutiMap();
                 var _ = 0;
                 move = _minMaxAi.MinMax(_gutiType, _explorationDepth, ref _);
                 break;
@@ -93,10 +69,10 @@ public class Player
                 break;
             case PlayerType.RLA:
             {
-                _minMaxAi.gutiMap = _gameManager.board.GetGutiMap();
-                _moveList = _minMaxAi.ExtractMoves(_gutiType);
-                var gutiTypeTree = _minMaxAi.GetGutiTypeTree(_gutiType, _moveList);
-                // var gutiTypeTree = _minMaxAi.ParallelGetGutiTypeTree(_gutiType, _moveList, gutiMap);
+                var simulator = _gameManager.simulator;
+                simulator.gutiMap = _gameManager.GetBoard().GetGutiMap();
+                _moveList = simulator.ExtractMoves(_gutiType);
+                var gutiTypeTree = simulator.GetBoardMapAsList(_gutiType, _moveList);
                 agent.PopulateGutiTypeTree(gutiTypeTree);
                 agent.RequestDecision();
                 return null;
@@ -104,7 +80,7 @@ public class Player
             default:
                 throw new Exception("No PlayerType Set");
         }
-        _gameManager.board.MoveGuti(move);
+        _gameManager.GetBoard().MoveGuti(move);
         SelectedMove = null;
         UpdateScore(move);
         return move;
@@ -112,11 +88,11 @@ public class Player
     
     public Move AgentMove(int maxIndex)
     {
-        if(playerType != PlayerType.RLA) Debug.Log("not RLA Agent");
+        if(PlayerType != PlayerType.RLA) Debug.Log("not RLA Agent");
         try
         {
             var move = _moveList[maxIndex];
-            _gameManager.board.MoveGuti(move);
+            _gameManager.GetBoard().MoveGuti(move);
             UpdateScore(move);
             return move;
         }           
@@ -132,20 +108,18 @@ public class Player
 
     private void UpdateScore(Move move)
     {
-        if (_gameManager.board.HasCapturedGuti(move)) CapturedGutiCount++;
+        if (_gameManager.GetBoard().HasCapturedGuti(move)) CapturedGutiCount++;
     }
-
-    public bool CanContinueTurn(Move move) => (_gameManager.board.HasCapturedGuti(move) && _gameManager.board.HasCapturableGuti(move.targetAddress));
 
     public float GetScore() => CapturedGutiCount * _gameManager.scoreUnit;
 
-    public MinMaxAI GetMinMaxAi() => _minMaxAi;
+    public MinMaxAi GetMinMaxAi() => _minMaxAi;
 
     public override string ToString()
     {
-        if (playerType != PlayerType.AI)
-            return $"Type: {playerType}\nColor: {_gutiType}\nScore: {CapturedGutiCount}";
-        return $"Type: {playerType}\nDepth: {_explorationDepth}\nColor: {_gutiType}\nScore: {CapturedGutiCount}";
+        if (PlayerType != PlayerType.AI)
+            return $"Type: {PlayerType}\nColor: {_gutiType}\nScore: {CapturedGutiCount}";
+        return $"Type: {PlayerType}\nDepth: {_explorationDepth}\nColor: {_gutiType}\nScore: {CapturedGutiCount}";
     }
     
 }
