@@ -27,7 +27,7 @@ public class UIManager : MonoBehaviour
         // ReplayBtn.enabled = false;
     }
 
-    public void UpdateScore(GutiType gutiType, String details)
+    public void UpdateScoreboard(GutiType gutiType, String details)
     {
         if (gutiType == GutiType.GreenGuti)
             GreenScore.text = "Player 2\n" + details;
@@ -35,7 +35,7 @@ public class UIManager : MonoBehaviour
             RedScore.text = "Player 1\n"+ details;
     }
 
-    public void UpdateScore(GutiType gutiType, int score)
+    public void UpdateScoreboard(GutiType gutiType, int score)
     {
         if (gutiType == GutiType.GreenGuti)
             GreenScore.text = $"GreenScore: {score}";
