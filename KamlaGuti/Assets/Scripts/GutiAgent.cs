@@ -9,7 +9,7 @@ public class GutiAgent : Agent
     [SerializeField] private GameManager gameManager;
     private List<List<float>> _gutiTypeTree;
     public GutiType gutiType;
-    
+
     private int iterator;
     private int maxIndex;
     private float maxValue;
