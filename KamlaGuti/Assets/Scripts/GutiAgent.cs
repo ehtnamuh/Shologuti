@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
@@ -13,6 +14,7 @@ public class GutiAgent : Agent
     private int iterator;
     private int maxIndex;
     private float maxValue;
+    private List<Move> _moveList;
     
     public override void Initialize()
     {
@@ -42,16 +44,23 @@ public class GutiAgent : Agent
             gameManager.Restart();
     }
     
+    public List<Move> MakeMove()
+    {
+        var simulator = gameManager.simulator;
+        simulator.gutiMap = gameManager.GetBoard().GetGutiMap();
+        _moveList = simulator.ExtractMoves(gutiType);
+        var gutiTypeTree = simulator.GetAllBoardStatesAsList(gutiType, _moveList);
+        PopulateGutiTypeTree(gutiTypeTree);
+        RequestDecision();
+        return _moveList;
+    }
 
-    public void PopulateGutiTypeTree(List<List<float>> gutiTypeTree)
+    private void PopulateGutiTypeTree(List<List<float>> gutiTypeTree)
     {
         _gutiTypeTree = gutiTypeTree;
         if (_gutiTypeTree.Count > 0) iterator = 0;
         else
-        {
-            Debug.Log("Never even here");
             gameManager.DeclareWinner();
-        }
     }
 
     public override void CollectObservations(VectorSensor sensor)
@@ -90,12 +99,30 @@ public class GutiAgent : Agent
             }
             // If only one move was available, maxIndex will be unset
             if (maxIndex == -1) maxIndex = 0;
-            gameManager.AgentMove(gutiType, maxIndex);
+            var move = AgentMove(maxIndex);
             var reward = gameManager.GetScoreDifference(gutiType) / 16.0f;
             SetReward(reward);
+            gameManager.EndStep(gutiType, move);
             gameManager.UnlockStep();
             Init();
         }
+    }
+
+    private Move AgentMove(int moveIndex)
+    {
+        try
+        {
+            var move = _moveList[moveIndex];
+            gameManager.GetBoard().MoveGuti(move);
+            gameManager.GetPlayer(gutiType).UpdateScore(move);
+            return move;
+        }           
+        catch (Exception e)
+        {
+            Debug.Log("AgentMove in Player Broke at Index:" + moveIndex);
+            Debug.Log(e);
+        }
+        return null;
     }
 
     private void UpdateMaxState(float val)

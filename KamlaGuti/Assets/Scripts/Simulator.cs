@@ -48,14 +48,14 @@ public class Simulator : MonoBehaviour
         return list;
     }
 
-    public List<List<float>> GetBoardMapAsList(GutiType gutiType, List<Move> moveList)
+    public List<List<float>> GetAllBoardStatesAsList(GutiType gutiType, List<Move> moveList)
     {
         var gutiTypeTree = new List<List<float>>();
         for (var index = 0; index < moveList.Count; index++)
         {
             var move = moveList[index];
             MoveGuti(move, gutiType);
-            gutiTypeTree.Add(gutiMap.GetBoardStateList());
+            gutiTypeTree.Add(gutiMap.GetBoardStateAsList());
             ReverseMove(gutiType, move);
         }
         return gutiTypeTree;

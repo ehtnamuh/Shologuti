@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 public enum PlayerType
 {
@@ -12,25 +11,19 @@ public enum PlayerType
 
 public class Player
 {
-    private  GutiType _gutiType;
-    private  GameManager _gameManager;
-    private  MinMaxAi _minMaxAi;
-    private  List<Move> _moveList;
-    
+    private readonly GutiType _gutiType;
+    private readonly GameManager _gameManager;
+    private readonly MinMaxAi _minMaxAi;
+
+    private readonly GutiAgent _agent;
     public int CapturedGutiCount { get; private set; }
-    public GutiAgent agent;
     public Move SelectedMove { get; set; }
     public PlayerType PlayerType { get; private set; }
-
     private int _explorationDepth;
-    
-    
-    public Player(GutiType gutiType, PlayerType tPlayerType, GameManager gm, int explorationDepth = -1)
-    {
-        Init(gutiType, tPlayerType, gm, explorationDepth);
-    }
 
-    private void Init(GutiType gutiType, PlayerType tPlayerType, GameManager gameManager, int explorationDepth = -1)
+    
+    
+    public Player(GutiType gutiType, PlayerType tPlayerType, GameManager gameManager, int explorationDepth = -1)
     {
         _explorationDepth = explorationDepth<=0? 1: explorationDepth;
         _gameManager = gameManager;
@@ -40,12 +33,13 @@ public class Player
         SelectedMove = null;
         if (PlayerType != PlayerType.Human) _minMaxAi = new MinMaxAi(_gutiType, gameManager.simulator);
         if (PlayerType != PlayerType.RLA) return;
-        agent = _gameManager.agent;
-        agent.gutiType = _gutiType;
+        _agent = _gameManager.agent;
+        _agent.gutiType = _gutiType;
     }
 
-    public void ReInit()
+    public void ReInit(int explorationDepth = -1)
     {
+        _explorationDepth = explorationDepth<=0? 1: explorationDepth;
         CapturedGutiCount = 0;
         SelectedMove = null;
     }
@@ -69,12 +63,7 @@ public class Player
                 break;
             case PlayerType.RLA:
             {
-                var simulator = _gameManager.simulator;
-                simulator.gutiMap = _gameManager.GetBoard().GetGutiMap();
-                _moveList = simulator.ExtractMoves(_gutiType);
-                var gutiTypeTree = simulator.GetBoardMapAsList(_gutiType, _moveList);
-                agent.PopulateGutiTypeTree(gutiTypeTree);
-                agent.RequestDecision();
+                _agent.MakeMove();
                 return null;
             }
             default:
@@ -85,28 +74,10 @@ public class Player
         UpdateScore(move);
         return move;
     }
-    
-    public Move AgentMove(int maxIndex)
-    {
-        if(PlayerType != PlayerType.RLA) Debug.Log("not RLA Agent");
-        try
-        {
-            var move = _moveList[maxIndex];
-            _gameManager.GetBoard().MoveGuti(move);
-            UpdateScore(move);
-            return move;
-        }           
-        catch (Exception e)
-        {
-            Debug.Log("AgentMove in Player Broke at Index:" + maxIndex);
-            Debug.Log(e);
-        }
-        return null;
-    }
 
     public GutiType GetGutiType() => _gutiType;
 
-    private void UpdateScore(Move move)
+    public void UpdateScore(Move move)
     {
         if (_gameManager.GetBoard().HasCapturedGuti(move)) CapturedGutiCount++;
     }
