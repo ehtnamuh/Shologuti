@@ -672,7 +672,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fff0b724c52210f44821b621e698ca1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boardGameObject: {fileID: 23366514}
+  timeScale: 20
   board: {fileID: 23366517}
   uiManager: {fileID: 0}
   agent: {fileID: 2138789149}

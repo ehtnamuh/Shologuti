@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -14,8 +15,9 @@ public enum GameState
 
 public class GameManager : MonoBehaviour
 {
-    public GameObject boardGameObject;
-    public Board board;
+    [SerializeField] private float timeScale = 5.0f;
+    [SerializeField] private Board board;
+    [SerializeField] public Simulator simulator;
     public UIManager uiManager;
     public GutiAgent agent;
     
@@ -35,7 +37,6 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         LockStep();
-        board = boardGameObject.GetComponent<Board>();
         uiManager = gameObject.GetComponent<UIManager>();
         maxStepCount = maxStepCount == 0 ? 200 : maxStepCount;
         Init();
@@ -63,7 +64,7 @@ public class GameManager : MonoBehaviour
         _currentStepCount = 0;
         InitPlayers();
         InitScoreboard();
-        Time.timeScale = 2.0f;
+        Time.timeScale = timeScale;
     }
     
     private void InitPlayers()
@@ -111,7 +112,7 @@ public class GameManager : MonoBehaviour
         _currentStepCount++;
         // Taking appropriate Actions According to Player type
         var player = _playerMap[_currentTurnGutiType];
-        switch (player.playerType)
+        switch (player.PlayerType)
         {
             case PlayerType.RLA:
                 LockStep();
@@ -119,8 +120,12 @@ public class GameManager : MonoBehaviour
                 return;
             case PlayerType.Human when player.SelectedMove == null:
                 return;
+            case PlayerType.AI:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
-        var canContinueTurn = player.CanContinueTurn(player.MakeMove());
+        var canContinueTurn = simulator.CanContinueTurn(player.MakeMove());
         uiManager.UpdateScore(player.GetGutiType(), player.ToString());
         if(!canContinueTurn) ChangeTurn();     
         if(player.CapturedGutiCount >= 16) DeclareWinner();
@@ -134,7 +139,7 @@ public class GameManager : MonoBehaviour
     public void AgentMove(GutiType gutiType, int maxIndex)
     {
         var player = _playerMap[gutiType];
-        var canContinueTurn = player.CanContinueTurn(player.AgentMove(maxIndex));
+        var canContinueTurn = simulator.CanContinueTurn(player.AgentMove(maxIndex));
         uiManager.UpdateScore(player.GetGutiType(), _playerMap[_currentTurnGutiType].ToString());
         if(!canContinueTurn) ChangeTurn();
     }
@@ -142,15 +147,15 @@ public class GameManager : MonoBehaviour
     public void DeclareWinner()
     {
         GutiType winningGutiType;
-        if (_playerMap[GutiType.GreenGuti].GetScore() == _playerMap[GutiType.RedGuti].GetScore())
+        if (Math.Abs(_playerMap[GutiType.GreenGuti].GetScore() - _playerMap[GutiType.RedGuti].GetScore()) < 0.01)
             winningGutiType = GutiType.NoGuti;
         else
             winningGutiType = _playerMap[GutiType.GreenGuti].GetScore() > _playerMap[GutiType.RedGuti].GetScore()
                 ? GutiType.GreenGuti
                 : GutiType.RedGuti;
         SetGameEndState(winningGutiType);
-        if (_playerMap[GutiType.GreenGuti].playerType != PlayerType.RLA &&
-            _playerMap[GutiType.RedGuti].playerType != PlayerType.RLA) return;
+        if (_playerMap[GutiType.GreenGuti].PlayerType != PlayerType.RLA &&
+            _playerMap[GutiType.RedGuti].PlayerType != PlayerType.RLA) return;
         if (autoPlay) agent.EndEpisode();
     }
 
@@ -179,7 +184,7 @@ public class GameManager : MonoBehaviour
     {
         var guti = go.GetComponent<Guti>();
         var player = _playerMap[_currentTurnGutiType];
-        if (_playerMap[_currentTurnGutiType].playerType != PlayerType.Human)
+        if (_playerMap[_currentTurnGutiType].PlayerType != PlayerType.Human)
         {
             // TODO: Make Button to HighLight Move that AI MinMax wants to take
             var ai = player.GetMinMaxAi();
@@ -217,6 +222,11 @@ public class GameManager : MonoBehaviour
     #endregion
 
 
+    #region Utilities
+
+    public Board GetBoard() => board;
+
+    #endregion
     public float GetScoreDifference(GutiType gutiType)
     {
         if (gutiType == GutiType.GreenGuti)

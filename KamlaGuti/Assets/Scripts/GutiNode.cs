@@ -74,3 +74,26 @@ public enum GutiType
     NoGuti = 2,
     Highlight = 3
 }
+
+public class Move
+{
+    public Address sourceAddress;
+    public Address targetAddress;
+    public GutiType capturedGutiType;
+    public GutiType sourceGutiType;
+
+    public Move(Address sourceAddress, Address targetAddress)
+    {
+        this.sourceAddress = sourceAddress;
+        this.targetAddress = targetAddress;
+    }
+
+    public override string ToString()
+    {
+        return $"Source: {sourceAddress} || Target {targetAddress}";
+    }
+
+    public Move()
+    {
+    }
+}
