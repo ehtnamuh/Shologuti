@@ -3,21 +3,25 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
+[RequireComponent(typeof(Board))]
+[RequireComponent(typeof(Simulator))]
+[RequireComponent(typeof(GameStateManager))]
+[RequireComponent(typeof(Scoreboard))]
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private float timeScale = 5.0f;
     [SerializeField] private Board board;
     [SerializeField] public Simulator simulator;
     [SerializeField] public GameStateManager gameStateManager;
+    [SerializeField] public Scoreboard scoreboard;
     public UIManager uiManager;
     public GutiAgent agent;
     
-    public int scoreUnit;
+    // public int scoreUnit;
     public int maxStepCount;
     public bool autoPlay;
 
     private int _currentStepCount = 0;
-    // private GameState _gameState = GameState.InPlay;
     private GutiType _currentTurnGutiType;
     private Dictionary<GutiType, Player> _playerMap = null;
 
@@ -53,6 +57,7 @@ public class GameManager : MonoBehaviour
     {
         _currentTurnGutiType = Random.value > 0.5? GutiType.GreenGuti : GutiType.RedGuti;
         _currentStepCount = 0;
+        uiManager.Init();
         InitPlayers();
         InitScoreboard();
         Time.timeScale = timeScale;
@@ -79,8 +84,8 @@ public class GameManager : MonoBehaviour
     
     private void InitScoreboard()
     {
-        uiManager.UpdateScoreboard(GutiType.RedGuti,  _playerMap[GutiType.RedGuti].ToString());
-        uiManager.UpdateScoreboard(GutiType.GreenGuti,  _playerMap[GutiType.GreenGuti].ToString());
+        scoreboard.UpdateScoreboard(GutiType.RedGuti,  _playerMap[GutiType.RedGuti].ToString());
+        scoreboard.UpdateScoreboard(GutiType.GreenGuti,  _playerMap[GutiType.GreenGuti].ToString());
     }
 
     #endregion
@@ -122,15 +127,11 @@ public class GameManager : MonoBehaviour
         UnlockStep();
     }
 
-    private void LockStep() => _stepEnded = false;
-
-    public void UnlockStep() => _stepEnded = true;
-
     public void EndStep(GutiType gutiType, Move move)
     {
         var player = _playerMap[gutiType];
         var canContinueTurn = simulator.CanContinueTurn(move);
-        UpdateScoreboard(player);
+        scoreboard.UpdateScoreboard(player);
         if(!canContinueTurn) ChangeTurn();     
         if(player.CapturedGutiCount >= 16) DeclareWinner();
     }
@@ -150,9 +151,12 @@ public class GameManager : MonoBehaviour
         if (autoPlay) agent.EndEpisode();
     }
 
+    private void LockStep() => _stepEnded = false;
+
+    public void UnlockStep() => _stepEnded = true;
+    
     #endregion
     
-
     #region Human Input
 
     public void ProcessHumanInput(GameObject go)
@@ -201,19 +205,8 @@ public class GameManager : MonoBehaviour
     
     public Player GetPlayer(GutiType gutiType) => _playerMap[gutiType];
 
-    #endregion
-
-    #region  Scoring
-
-    public float GetScoreDifference(GutiType gutiType)
-    {
-        if (gutiType == GutiType.GreenGuti)
-            return _playerMap[GutiType.GreenGuti].GetScore() - _playerMap[GutiType.RedGuti].GetScore();
-        return _playerMap[GutiType.RedGuti].GetScore() - _playerMap[GutiType.GreenGuti].GetScore();
-    }
-    private void UpdateScoreboard(Player player) => uiManager.UpdateScoreboard(player.GetGutiType(), player.ToString());
-
+    private void ChangeTurn() => _currentTurnGutiType = GutiNode.ChangeGutiType(_currentTurnGutiType);
     #endregion
     
-    private void ChangeTurn() => _currentTurnGutiType = _currentTurnGutiType == GutiType.GreenGuti ? GutiType.RedGuti : GutiType.GreenGuti;
+    
 }

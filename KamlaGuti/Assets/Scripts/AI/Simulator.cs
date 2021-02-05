@@ -32,7 +32,7 @@ public class Simulator : MonoBehaviour
         gutiMap.MoveGuti(move.targetAddress, move.sourceAddress);
         if (!gutiMap.CanCaptureGuti(move.sourceAddress, move.targetAddress)) return;
         var capturedGuti = gutiMap.GetCapturedGutiAddress(move.sourceAddress, move.targetAddress);
-        var tempGutiType = ChangeGutiType(gutiType);
+        var tempGutiType = GutiNode.ChangeGutiType(gutiType);
         gutiMap.RestoreGuti(capturedGuti, tempGutiType);
     }
     
@@ -60,8 +60,6 @@ public class Simulator : MonoBehaviour
         }
         return gutiTypeTree;
     }
-
-    public static GutiType ChangeGutiType(GutiType gutiType) => gutiType == GutiType.GreenGuti ? GutiType.RedGuti : GutiType.GreenGuti;
     
     public bool CanContinueTurn(Move move) => (board.HasCapturedGuti(move) &&  board.CanCaptureGuti(move.targetAddress));
 

@@ -82,7 +82,7 @@ public class Player
         if (_gameManager.GetBoard().HasCapturedGuti(move)) CapturedGutiCount++;
     }
 
-    public float GetScore() => CapturedGutiCount * _gameManager.scoreUnit;
+    public float GetScore() => CapturedGutiCount * _gameManager.scoreboard.ScoreUnit;
 
     public MinMaxAi GetMinMaxAi() => _minMaxAi;
 

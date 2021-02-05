@@ -11,12 +11,11 @@ public class GutiNode
 
     public GutiNode GetCopy()
     {
-        var instance = new GutiNode();
-        instance.Address = Address;
-        instance.ConnectedNeighbours = ConnectedNeighbours;
-        instance.gutiType = gutiType;
+        var instance = new GutiNode {Address = Address, ConnectedNeighbours = ConnectedNeighbours, gutiType = gutiType};
         return instance;
     }
+    
+    public static GutiType ChangeGutiType(GutiType gutiType) => gutiType == GutiType.GreenGuti ? GutiType.RedGuti : GutiType.GreenGuti;
 }
 
 [System.Serializable]

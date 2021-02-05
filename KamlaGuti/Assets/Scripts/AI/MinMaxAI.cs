@@ -42,7 +42,7 @@ public class MinMaxAi
             else
             {
                 var tempScore = 0;
-                var tempGutiType = Simulator.ChangeGutiType(gutiType);
+                var tempGutiType = GutiNode.ChangeGutiType(gutiType);
                 MinMax(tempGutiType, --tempExplorationDepth, ref tempScore);
                 score -= tempScore;
             }

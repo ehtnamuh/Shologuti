@@ -5,39 +5,22 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    [SerializeField] private Button pauseBtn;
 
-    [SerializeField] private Text RedScore;
-    [SerializeField] private Text GreenScore;
-    [SerializeField] private Text GameStatusText;
-    [SerializeField] private Button PauseBtn;
-
-    private Text PauseBtnText;
+    private Text _pauseBtnText;
     private GameManager _gameManager;
-
-
-    // Start is called before the first frame update
+    
     public void Awake()
     {
         _gameManager = gameObject.GetComponent<GameManager>();
-        PauseBtnText = PauseBtn.GetComponentInChildren<Text>();
-        GameStatusText.enabled = false;
+        _pauseBtnText = pauseBtn.GetComponentInChildren<Text>();
     }
 
-    public void UpdateScoreboard(GutiType gutiType, String details)
+    public void Init()
     {
-        if (gutiType == GutiType.GreenGuti)
-            GreenScore.text = "Player 2\n" + details;
-        else
-            RedScore.text = "Player 1\n"+ details;
+        _pauseBtnText.text = "Pause";
     }
-
-    public void UpdateScoreboard(GutiType gutiType, int score)
-    {
-        if (gutiType == GutiType.GreenGuti)
-            GreenScore.text = $"GreenScore: {score}";
-        else
-            RedScore.text = $"RedScore: {score}";
-    }
+    
 
     public void Step()
     {
@@ -55,11 +38,15 @@ public class UIManager : MonoBehaviour
         switch (gameStateManager.GameState)
         {
             case GameState.InPlay:
-                PauseBtnText.text = "Resume";
+                _pauseBtnText.text = "Resume";
                 gameStateManager.SetGameState(GameState.Paused);
                 break;
             case GameState.Paused:
-                PauseBtnText.text = "Pause";
+                _pauseBtnText.text = "Pause";
+                gameStateManager.SetGameState(GameState.InPlay);
+                break;
+            default:
+                _pauseBtnText.text = "Pause";
                 gameStateManager.SetGameState(GameState.InPlay);
                 break;
         }
