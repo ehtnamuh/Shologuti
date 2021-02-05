@@ -3,21 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-
-public enum GameState
-{
-    InPlay = 0,
-    RedWin = 1,
-    GreenWin = 2,
-    Paused = 3,
-    Draw = 4
-}
-
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private float timeScale = 5.0f;
     [SerializeField] private Board board;
     [SerializeField] public Simulator simulator;
+    [SerializeField] public GameStateManager gameStateManager;
     public UIManager uiManager;
     public GutiAgent agent;
     
@@ -26,7 +17,7 @@ public class GameManager : MonoBehaviour
     public bool autoPlay;
 
     private int _currentStepCount = 0;
-    private GameState _gameState = GameState.InPlay;
+    // private GameState _gameState = GameState.InPlay;
     private GutiType _currentTurnGutiType;
     private Dictionary<GutiType, Player> _playerMap = null;
 
@@ -40,7 +31,7 @@ public class GameManager : MonoBehaviour
         uiManager = gameObject.GetComponent<UIManager>();
         maxStepCount = maxStepCount == 0 ? 200 : maxStepCount;
         Init();
-        _gameState = GameState.InPlay; // Using SetGameState() can cause failure if UIManager fails to load in time
+        gameStateManager.GameState = GameState.InPlay; // Using SetGameState() can cause failure if UIManager fails to load in time
         UnlockStep();
     }
 
@@ -49,7 +40,7 @@ public class GameManager : MonoBehaviour
         LockStep();
         board.Restart();
         Init();
-        SetGameState(GameState.InPlay);
+        gameStateManager.SetGameState(GameState.InPlay);
         UnlockStep();
     }
 
@@ -98,7 +89,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (_gameState != GameState.InPlay)
+        if (gameStateManager.GameState != GameState.InPlay)
             return;
         if (_stepEnded) NextStep();
     }
@@ -153,30 +144,14 @@ public class GameManager : MonoBehaviour
             winningGutiType = _playerMap[GutiType.GreenGuti].GetScore() > _playerMap[GutiType.RedGuti].GetScore()
                 ? GutiType.GreenGuti
                 : GutiType.RedGuti;
-        SetGameEndState(winningGutiType);
+        gameStateManager.SetGameEndState(winningGutiType);
         if (_playerMap[GutiType.GreenGuti].PlayerType != PlayerType.RLA &&
             _playerMap[GutiType.RedGuti].PlayerType != PlayerType.RLA) return;
         if (autoPlay) agent.EndEpisode();
     }
 
     #endregion
-
-    #region GameState
-    public void SetGameState(GameState gameState)
-    {
-        _gameState = gameState;
-        uiManager.UpdateGameStatus(gameState);
-    }
-
-    public GameState GetGameState() => _gameState;
-
-    private void SetGameEndState(GutiType gutiType)
-    {
-        var gameState = gutiType == GutiType.GreenGuti ? GameState.GreenWin : GameState.RedWin;
-        SetGameState(gameState);
-    }
     
-    #endregion
 
     #region Human Input
 

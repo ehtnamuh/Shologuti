@@ -42,7 +42,8 @@ public class GutiAgent : Agent
     public override void OnEpisodeBegin()
     {
         Init();
-        if (gameManager.GetGameState() == GameState.GreenWin || gameManager.GetGameState() == GameState.RedWin || gameManager.GetGameState() == GameState.Draw)
+        var gameState = gameManager.gameStateManager.GameState;
+        if (gameState == GameState.GreenWin || gameState == GameState.RedWin || gameState == GameState.Draw)
             gameManager.Restart();
     }
     
