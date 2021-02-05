@@ -13,15 +13,15 @@ public enum GameState
 
 public  class GameStateManager: MonoBehaviour
 {
-    public GameState GameState { get; set; } = GameState.InPlay;
     [SerializeField] private Text gameStatusText;
-
+    public GameState GameState { get; set; } = GameState.InPlay;
+    
     public void Awake() => gameStatusText.enabled = false;
 
     public void SetGameState(GameState gameState)
     {
         GameState = gameState;
-        UpdateGameStatus(gameState);
+        GameStateGuiUpdater.UpdateGameStateGui(gameStatusText, gameState);
     }
     
     public void SetGameEndState(GutiType gutiType)
@@ -30,8 +30,11 @@ public  class GameStateManager: MonoBehaviour
         SetGameState(gameState);
     }
 
+}
 
-    private void UpdateGameStatus(GameState gameState)
+internal static class GameStateGuiUpdater
+{
+    public static void UpdateGameStateGui(Text gameStatusText, GameState gameState)
     {
         gameStatusText.enabled = true;
         switch (gameState)
@@ -58,5 +61,6 @@ public  class GameStateManager: MonoBehaviour
                 break;
         }
     }
-    
 }
+
+

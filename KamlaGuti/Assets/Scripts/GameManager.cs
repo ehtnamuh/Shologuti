@@ -17,7 +17,6 @@ public class GameManager : MonoBehaviour
     public UIManager uiManager;
     public GutiAgent agent;
     
-    // public int scoreUnit;
     public int maxStepCount;
     public bool autoPlay;
 
@@ -105,6 +104,7 @@ public class GameManager : MonoBehaviour
         LockStep();
         // Checking Maximum Step per Episode
         if(_currentStepCount > maxStepCount){ DeclareWinner(); return;}
+        
         _currentStepCount++;
         // Taking appropriate Actions According to Player type
         var player = _playerMap[_currentTurnGutiType];
@@ -113,7 +113,7 @@ public class GameManager : MonoBehaviour
         {
             case PlayerType.RLA:
                 LockStep();
-                move = player.MakeMove();
+                player.MakeMove();
                 return;
             case PlayerType.Human when player.SelectedMove == null:
                 return;

@@ -8,4 +8,9 @@ public class RuleBook : MonoBehaviour
     private void Start() => board = GetComponent<Board>();
 
     public  bool CanContinueTurn(Move move) => (board.HasCapturedGuti(move) &&  board.CanCaptureGuti(move.targetAddress));
+
+    public bool MaxStepExceeded()
+    {
+        return false;
+    }
 }
