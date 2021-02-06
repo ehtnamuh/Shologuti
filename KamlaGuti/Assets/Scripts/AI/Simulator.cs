@@ -38,7 +38,7 @@ public class Simulator : MonoBehaviour
     
     public List<Move> ExtractMoves(GutiType gutiType)
     {
-        var playerGutiAddress = gutiMap.GetGutisOfType(gutiType);
+        var playerGutiAddress = gutiMap.GetGutiListOfType(gutiType);
         var list = new List<Move>();
         foreach (var source in playerGutiAddress)
         {
@@ -61,6 +61,6 @@ public class Simulator : MonoBehaviour
         return gutiTypeTree;
     }
     
-    public bool CanContinueTurn(Move move) => (board.HasCapturedGuti(move) &&  board.CanCaptureGuti(move.targetAddress));
+    // public bool CanContinueTurn(Move move) => (board.HasCapturedGuti(move) &&  board.CanCaptureGuti(move.targetAddress));
 
 }

@@ -1,16 +1,10 @@
-﻿using UnityEngine;
-
-public class RuleBook : MonoBehaviour 
+﻿public static class RuleBook
 {
-    public Board board;
-    public int maxStepCount;
-    public int winningScore;
-    private void Start() => board = GetComponent<Board>();
+    public static GutiMap gutiMap;
+    public static int maxStepCount;
+    public static int winningScore;
 
-    public  bool CanContinueTurn(Move move) => (board.HasCapturedGuti(move) &&  board.CanCaptureGuti(move.targetAddress));
-
-    public bool MaxStepExceeded()
-    {
-        return false;
-    }
+    public static bool CanContinueTurn(Move move) => (gutiMap.CanCaptureGuti(move.sourceAddress, move.targetAddress) &&  gutiMap.CanCaptureGuti(move.targetAddress));
+    public static bool CanCaptureGuti(Move move) => gutiMap.CanCaptureGuti(move.sourceAddress, move.targetAddress);
+    public static bool MaxStepExceeded() => false;
 }

@@ -109,7 +109,7 @@ public class GutiMap
     }
     
     
-    public IEnumerable<Address> GetGutisOfType(GutiType gutiType) => (from pair in _gutiMap where pair.Value.gutiType == gutiType select pair.Key).ToList();
+    public IEnumerable<Address> GetGutiListOfType(GutiType gutiType) => (from pair in _gutiMap where pair.Value.gutiType == gutiType select pair.Key).ToList();
 
     public List<float> GetBoardStateAsList() => _gutiMap.Select(node => (float)node.Value.gutiType).ToList();
 

@@ -20,7 +20,6 @@ public class Player
     public Move SelectedMove { get; set; }
     public PlayerType PlayerType { get; private set; }
     private int _explorationDepth;
-
     
     
     public Player(GutiType gutiType, PlayerType tPlayerType, GameManager gameManager, int explorationDepth = -1)
@@ -79,7 +78,7 @@ public class Player
 
     public void UpdateScore(Move move)
     {
-        if (_gameManager.GetBoard().HasCapturedGuti(move)) CapturedGutiCount++;
+        if (RuleBook.CanCaptureGuti(move)) CapturedGutiCount++;
     }
 
     public float GetScore() => CapturedGutiCount * _gameManager.scoreboard.ScoreUnit;

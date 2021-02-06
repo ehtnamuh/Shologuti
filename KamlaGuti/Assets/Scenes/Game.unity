@@ -766,10 +766,9 @@ MonoBehaviour:
   board: {fileID: 23366517}
   simulator: {fileID: 38038610}
   gameStateManager: {fileID: 331810967}
-  scoreboard: {fileID: 0}
-  uiManager: {fileID: 0}
+  scoreboard: {fileID: 1287124650}
+  uiManager: {fileID: 424579932}
   agent: {fileID: 2138789149}
-  scoreUnit: 1
   maxStepCount: 200
   autoPlay: 1
 --- !u!114 &424579932
@@ -784,8 +783,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e73e944082b0d248b0170a58b13d80c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  redScore: {fileID: 1598395370}
-  greenScore: {fileID: 2076235871}
   pauseBtn: {fileID: 295976768}
 --- !u!1 &874339876
 GameObject:
@@ -1200,6 +1197,7 @@ MonoBehaviour:
   redScore: {fileID: 1598395370}
   greenScore: {fileID: 2076235871}
   gameManager: {fileID: 424579931}
+  ScoreUnit: 1
 --- !u!1 &1460911780
 GameObject:
   m_ObjectHideFlags: 0

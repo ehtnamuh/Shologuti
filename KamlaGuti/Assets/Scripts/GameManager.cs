@@ -130,7 +130,7 @@ public class GameManager : MonoBehaviour
     public void EndStep(GutiType gutiType, Move move)
     {
         var player = _playerMap[gutiType];
-        var canContinueTurn = simulator.CanContinueTurn(move);
+        var canContinueTurn = RuleBook.CanContinueTurn(move);
         scoreboard.UpdateScoreboard(player);
         if(!canContinueTurn) ChangeTurn();     
         if(player.CapturedGutiCount >= 16) DeclareWinner();

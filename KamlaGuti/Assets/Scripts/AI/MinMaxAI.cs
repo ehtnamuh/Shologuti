@@ -33,7 +33,7 @@ public class MinMaxAi
             var score = 0;
             score += _simulator.PredictMoveValue(move,_playerGutiType, gutiType);
             _simulator.MoveGuti(move, gutiType);
-            if (_simulator.CanContinueTurn(move))
+            if (RuleBook.CanContinueTurn(move))
             {
                 var tempScore = 0;
                 MinMax(gutiType, --tempExplorationDepth, ref tempScore);

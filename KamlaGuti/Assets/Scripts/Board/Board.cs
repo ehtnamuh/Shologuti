@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -40,6 +41,7 @@ public class Board : MonoBehaviour
 			guti.SetGutiType(gutiNode.gutiType);
 			_gutiGoMap[guti.address] = guti;
 		}
+		RuleBook.gutiMap = _gutiMap;
 	}
 
 	private void LoadFromJson()
@@ -65,14 +67,7 @@ public class Board : MonoBehaviour
 			_gutiGoMap.Remove(gutiGo.Key);
 		}
 	}
-
-	public bool CanCaptureGuti(Address address) => _gutiMap.CanCaptureGuti(address);
-
-	public bool HasCapturedGuti(Move move)
-	{
-		var capturedGutiAddress = _gutiMap.GetCapturedGutiAddress(move.sourceAddress, move.targetAddress);
-		return capturedGutiAddress != move.targetAddress;
-	}
+	
 
 	public void MoveGuti(Move move)
 	{
@@ -82,7 +77,7 @@ public class Board : MonoBehaviour
 		var targetAddress = move.targetAddress;
 		// updating logical map
 		_gutiMap.CaptureGuti(sourceAddress, targetAddress);
-		if (HasCapturedGuti(move))
+		if (RuleBook.CanCaptureGuti(move))
 		{
 			var capturedGutiAddress = _gutiMap.GetCapturedGutiAddress(sourceAddress, targetAddress);
 			ClearCapturedGuti(capturedGutiAddress);
@@ -120,8 +115,6 @@ public class Board : MonoBehaviour
 		
 	}
 
-	public GutiType getGutiType(Address address) => _gutiMap.GetGutiType(address);
-
 	public void ReverseLastMove() => throw new NotImplementedException();
 
 	public void GetLastMove() => throw new NotImplementedException();
@@ -156,3 +149,4 @@ public class Board : MonoBehaviour
 		foreach (var neighbourAddress in walkableNeighbours) SpawnHighlightNode(neighbourAddress, Color.yellow);
 	}
 }
+
