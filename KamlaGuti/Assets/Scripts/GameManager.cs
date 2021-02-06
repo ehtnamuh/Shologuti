@@ -34,7 +34,7 @@ public class GameManager : MonoBehaviour
         uiManager = gameObject.GetComponent<UIManager>();
         maxStepCount = maxStepCount == 0 ? 200 : maxStepCount;
         Init();
-        gameStateManager.GameState = GameState.InPlay; // Using SetGameState() can cause failure if UIManager fails to load in time
+        gameStateManager.SetGameState(GameState.InPlay); // Using SetGameState() can cause failure if UIManager fails to load in time
         UnlockStep();
     }
 
