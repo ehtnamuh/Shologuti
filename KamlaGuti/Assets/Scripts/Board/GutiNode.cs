@@ -11,12 +11,11 @@ public class GutiNode
 
     public GutiNode GetCopy()
     {
-        var instance = new GutiNode();
-        instance.Address = Address;
-        instance.ConnectedNeighbours = ConnectedNeighbours;
-        instance.gutiType = gutiType;
+        var instance = new GutiNode {Address = Address, ConnectedNeighbours = ConnectedNeighbours, gutiType = gutiType};
         return instance;
     }
+    
+    public static GutiType ChangeGutiType(GutiType gutiType) => gutiType == GutiType.GreenGuti ? GutiType.RedGuti : GutiType.GreenGuti;
 }
 
 [System.Serializable]
@@ -73,4 +72,27 @@ public enum GutiType
     GreenGuti = 1,
     NoGuti = 2,
     Highlight = 3
+}
+
+public class Move
+{
+    public Address sourceAddress;
+    public Address targetAddress;
+    public GutiType capturedGutiType;
+    public GutiType sourceGutiType;
+
+    public Move(Address sourceAddress, Address targetAddress)
+    {
+        this.sourceAddress = sourceAddress;
+        this.targetAddress = targetAddress;
+    }
+
+    public override string ToString()
+    {
+        return $"Source: {sourceAddress} || Target {targetAddress}";
+    }
+
+    public Move()
+    {
+    }
 }

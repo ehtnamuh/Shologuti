@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -40,13 +41,14 @@ public class Board : MonoBehaviour
 			guti.SetGutiType(gutiNode.gutiType);
 			_gutiGoMap[guti.address] = guti;
 		}
+		RuleBook.gutiMap = _gutiMap;
 	}
 
 	private void LoadFromJson()
 	{
-		TextAsset textAsset = Resources.Load<TextAsset>("Board");
-		string data = textAsset.text;
-		GutiNodes fromJson = JsonUtility.FromJson<GutiNodes>(data);
+		var textAsset = Resources.Load<TextAsset>("Board");
+		var data = textAsset.text;
+		var fromJson = JsonUtility.FromJson<GutiNodes>(data);
 		_gutiNodesArray = fromJson.gutiArray;
 	}
 
@@ -57,7 +59,7 @@ public class Board : MonoBehaviour
 		Init();
 	}
 
-	public void DeleteAllGutiGo()
+	private void DeleteAllGutiGo()
 	{
 		foreach (var gutiGo in _gutiGoMap.ToList())
 		{
@@ -65,14 +67,7 @@ public class Board : MonoBehaviour
 			_gutiGoMap.Remove(gutiGo.Key);
 		}
 	}
-
-	public bool HasCapturableGuti(Address address) => _gutiMap.CanCaptureGuti(address);
-
-	public bool HasCapturedGuti(Move move)
-	{
-		var capturedGutiAddress = _gutiMap.GetCapturedGutiAddress(move.sourceAddress, move.targetAddress);
-		return capturedGutiAddress != move.targetAddress;
-	}
+	
 
 	public void MoveGuti(Move move)
 	{
@@ -82,7 +77,7 @@ public class Board : MonoBehaviour
 		var targetAddress = move.targetAddress;
 		// updating logical map
 		_gutiMap.CaptureGuti(sourceAddress, targetAddress);
-		if (HasCapturedGuti(move))
+		if (RuleBook.CanCaptureGuti(move))
 		{
 			var capturedGutiAddress = _gutiMap.GetCapturedGutiAddress(sourceAddress, targetAddress);
 			ClearCapturedGuti(capturedGutiAddress);
@@ -120,26 +115,13 @@ public class Board : MonoBehaviour
 		
 	}
 
-	public GutiType getGutiType(Address address)
-	{
-		return _gutiMap.GetGutiType(address);
-	}
-	
-	public void ReverseLastMove()
-	{
-		throw new NotImplementedException();
-	}
+	public void ReverseLastMove() => throw new NotImplementedException();
 
-	public void GetLastMove()
-	{
-		throw new NotImplementedException();
-	}
+	public void GetLastMove() => throw new NotImplementedException();
 
 	public void ClearHighlightedNodes()
 	{
-		// very inefficiently clearing highligts
 		// TODO: Have a enabled and disabled highlightedNode Stack and queue 
-		// enabled nodes go from disabled stack to enabled stack and vice versa
 		foreach (var node in _highlightedNodes) Destroy(node);
 	}
 
@@ -153,13 +135,18 @@ public class Board : MonoBehaviour
 		_highlightedNodes.Add(gutiGo);
 	}
 
+	public void HighlightMove(Move move)
+	{
+		ClearHighlightedNodes();
+		SpawnHighlightNode(move.sourceAddress, Color.white);
+		SpawnHighlightNode(move.targetAddress, Color.blue);
+	}
+
 	public void HighlightWalkableNodes(Address address)
 	{
 		ClearHighlightedNodes();
 		var walkableNeighbours = _gutiMap.GetWalkableNodes(address);
-		foreach (var neighbourAddress in walkableNeighbours)
-		{
-			SpawnHighlightNode(neighbourAddress, Color.yellow);
-		}
+		foreach (var neighbourAddress in walkableNeighbours) SpawnHighlightNode(neighbourAddress, Color.yellow);
 	}
 }
+

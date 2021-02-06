@@ -7,20 +7,17 @@ public class GutiMap
 {
     private Dictionary<Address, GutiNode> _gutiMap;
 
-    public Dictionary<Address, GutiNode> GetGutiMap() => _gutiMap;
+    private Dictionary<Address, GutiNode> GetGutiMap() => _gutiMap;
 
     public GutiMap(GutiMap gutiMap)
     {
         _gutiMap = new Dictionary<Address, GutiNode>();
-        foreach (var node in gutiMap.GetGutiMap())
-        {
-            _gutiMap.Add(node.Key, node.Value.GetCopy());
-        }
+        foreach (var node in gutiMap.GetGutiMap()) _gutiMap.Add(node.Key, node.Value.GetCopy());
     }
 
     public GutiMap() => _gutiMap = new Dictionary<Address, GutiNode>();
 
-    public GutiNode GetGutiNode(Address address)
+    private GutiNode GetGutiNode(Address address)
     {
         try
         {
@@ -95,7 +92,7 @@ public class GutiMap
         GetGutiNode(sourceAddress).gutiType = GutiType.NoGuti;
     }
 
-    public void RemoveGuti(Address address) => GetGutiNode(address).gutiType = GutiType.NoGuti;
+    private void RemoveGuti(Address address) => GetGutiNode(address).gutiType = GutiType.NoGuti;
 
     public void RestoreGuti(Address address, GutiType gutiType) => GetGutiNode(address).gutiType = gutiType;
 
@@ -112,8 +109,8 @@ public class GutiMap
     }
     
     
-    public IEnumerable<Address> GetGutisOfType(GutiType gutiType) => (from pair in _gutiMap where pair.Value.gutiType == gutiType select pair.Key).ToList();
+    public IEnumerable<Address> GetGutiListOfType(GutiType gutiType) => (from pair in _gutiMap where pair.Value.gutiType == gutiType select pair.Key).ToList();
 
-    public List<float> GetGutiTypeList() => _gutiMap.Select(node => (float)node.Value.gutiType).ToList();
+    public List<float> GetBoardStateAsList() => _gutiMap.Select(node => (float)node.Value.gutiType).ToList();
 
 }

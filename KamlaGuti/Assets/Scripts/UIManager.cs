@@ -5,73 +5,26 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    [SerializeField] private Button pauseBtn;
 
-    [SerializeField] private Text RedScore;
-    [SerializeField] private Text GreenScore;
-    [SerializeField] private Text GameStatusText;
-    [SerializeField] private Button ReplayBtn;
-    [SerializeField] private Button PauseBtn;
-    [SerializeField] private Button StepBtn;
-
-    private Text PauseBtnText;
+    private Text _pauseBtnText;
     private GameManager _gameManager;
-
     
-    // Start is called before the first frame update
-    void Awake()
+    public void Awake()
     {
-        Debug.Log("UI Loaded");
         _gameManager = gameObject.GetComponent<GameManager>();
-        PauseBtnText = PauseBtn.GetComponentInChildren<Text>();
-        GameStatusText.enabled = false;
-        // ReplayBtn.enabled = false;
+        _pauseBtnText = pauseBtn.GetComponentInChildren<Text>();
     }
 
-    public void UpdateScore(GutiType gutiType, String details)
+    public void Init()
     {
-        if (gutiType == GutiType.GreenGuti)
-            GreenScore.text = "Player 2\n" + details;
-        else
-            RedScore.text = "Player 1\n"+ details;
+        _pauseBtnText.text = "Pause";
     }
-
-    public void UpdateScore(GutiType gutiType, int score)
-    {
-        if (gutiType == GutiType.GreenGuti)
-            GreenScore.text = $"GreenScore: {score}";
-        else
-            RedScore.text = $"RedScore: {score}";
-    }
-
-    public void UpdateGameStatus(GameState gameState)
-    {
-        GameStatusText.enabled = true;
-        switch (gameState)
-        {
-            case GameState.GreenWin:
-                GameStatusText.text = "Green Wins";
-                GameStatusText.color = Color.green;
-                break;
-            case GameState.RedWin:
-                GameStatusText.text = "Red Wins";
-                GameStatusText.color = Color.red;
-                break;
-            case GameState.Paused:
-                GameStatusText.text = "Game Paused";
-                GameStatusText.color = Color.white;
-                PauseBtnText.text = "Resume";
-                break;
-            case GameState.InPlay:
-                GameStatusText.enabled = false;
-                GameStatusText.color = Color.white;
-                PauseBtnText.text = "Pause";
-                break;
-        }
-    }
+    
 
     public void Step()
     {
-        if (_gameManager.GetGameState() != GameState.Paused && _gameManager.GetGameState() != GameState.InPlay)
+        if (_gameManager.gameStateManager.GameState != GameState.Paused && _gameManager.gameStateManager.GameState != GameState.InPlay)
         {
             Debug.Log("Game Ended. Hit Restart");
             return;
@@ -81,21 +34,29 @@ public class UIManager : MonoBehaviour
 
     public void Pause()
     {
-        if (_gameManager.GetGameState() == GameState.InPlay)
+        var gameStateManager = _gameManager.gameStateManager;
+        switch (gameStateManager.GameState)
         {
-            // Time.timeScale =  0f;
-            _gameManager.SetGameState(GameState.Paused);
-        }
-        else if(_gameManager.GetGameState() == GameState.Paused)
-        {
-            Time.timeScale = 2.0f;
-            _gameManager.SetGameState(GameState.InPlay);
-        }
-        else
-        {
-            Debug.Log("From PauseBtn: Game already ended");
+            case GameState.InPlay:
+                _pauseBtnText.text = "Resume";
+                gameStateManager.SetGameState(GameState.Paused);
+                break;
+            case GameState.Paused:
+                _pauseBtnText.text = "Pause";
+                gameStateManager.SetGameState(GameState.InPlay);
+                break;
+            default:
+                _pauseBtnText.text = "Pause";
+                gameStateManager.SetGameState(GameState.InPlay);
+                break;
         }
     }
 
-    public void Restart() => _gameManager.Restart();
+    public void Restart()
+    {
+        _gameManager.DeclareWinner();
+        _gameManager.Restart();  
+    } 
+        
+    
 }
