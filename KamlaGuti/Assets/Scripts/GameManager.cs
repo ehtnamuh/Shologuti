@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Player;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -104,13 +105,13 @@ public class GameManager : MonoBehaviour
         LockStep();
         // Checking Maximum Step per Episode
         if(_currentStepCount > maxStepCount){ DeclareWinner(); return;}
-        
         _currentStepCount++;
         // Taking appropriate Actions According to Player type
         var player = _playerMap[_currentTurnGutiType];
         var move = player.GetMove();
         if(move == null) return;
         board.MoveGuti(move);
+        
         EndStep(_currentTurnGutiType, move);
         UnlockStep();
     }

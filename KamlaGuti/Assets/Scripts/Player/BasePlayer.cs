@@ -1,32 +1,35 @@
-﻿public enum PlayerType
+﻿namespace Player
 {
-    Human = 0,
-    AI = 1,
-    RLA = 2
-    
-}
-
-public abstract class BasePlayer
-{
-    protected GutiType gutiType;
-    protected GameManager gameManager;
-
-    public int CapturedGutiCount { get; set; }
-    public PlayerType PlayerType { get; protected set; }
-    
-    protected BasePlayer() {}
-
-    public abstract void ReInit();
-
-    public abstract Move GetMove();
-
-    public GutiType GetGutiType() => gutiType;
-
-    public void UpdateScore(Move move)
+    public enum PlayerType
     {
-        if (RuleBook.CanCaptureGuti(move)) CapturedGutiCount++;
+        Human = 0,
+        AI = 1,
+        RLA = 2
+    
     }
 
-    public float GetScore() => CapturedGutiCount * gameManager.scoreboard.ScoreUnit;
+    public abstract class BasePlayer
+    {
+        protected GutiType gutiType;
+        protected GameManager gameManager;
 
+        public int CapturedGutiCount { get; set; }
+        public PlayerType PlayerType { get; protected set; }
+    
+        protected BasePlayer() {}
+
+        public abstract void ReInit();
+
+        public abstract Move GetMove();
+
+        public GutiType GetGutiType() => gutiType;
+
+        public void UpdateScore(Move move)
+        {
+            if (RuleBook.CanCaptureGuti(move)) CapturedGutiCount++;
+        }
+
+        public float GetScore() => CapturedGutiCount * gameManager.scoreboard.ScoreUnit;
+
+    }
 }
