@@ -24,5 +24,5 @@ public class Scoreboard : MonoBehaviour
             return gameManager.GetPlayer(GutiType.GreenGuti).GetScore() - gameManager.GetPlayer(GutiType.RedGuti).GetScore();
         return gameManager.GetPlayer(GutiType.RedGuti).GetScore() - gameManager.GetPlayer(GutiType.GreenGuti).GetScore();
     }
-
+    
 }

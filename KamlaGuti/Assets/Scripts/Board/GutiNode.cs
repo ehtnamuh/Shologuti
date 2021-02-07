@@ -29,7 +29,7 @@ public struct Address
 {
     public int x;
     public int y;
-
+    
     public static Address operator -(Address a, Address b) => new Address {x = a.x - b.x, y = a.y - b.y};
     public static Address operator +(Address a, Address b) => new Address {x = a.x + b.x, y = a.y + b.y};
     public static bool operator ==(Address a, Address b) => (a.x == b.x && a.y == b.y);
@@ -87,12 +87,11 @@ public class Move
         this.targetAddress = targetAddress;
     }
 
-    public override string ToString()
-    {
-        return $"Source: {sourceAddress} || Target {targetAddress}";
-    }
-
     public Move()
     {
+        sourceAddress = new Address {x = -1 , y = -1};
+        targetAddress = new Address {x = -1 , y = -1};
     }
+    
+    public override string ToString() => $"Source: {sourceAddress} || Target {targetAddress}";
 }

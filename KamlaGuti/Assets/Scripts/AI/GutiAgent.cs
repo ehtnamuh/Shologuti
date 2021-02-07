@@ -15,6 +15,7 @@ public class GutiAgent : Agent
     private int _maxIndex;
     private float _maxValue;
     private int _actionIndex;
+    private int explorationDepth;
     private List<Move> _moveList;
     
     public override void Initialize()
@@ -50,7 +51,7 @@ public class GutiAgent : Agent
     public void MakeMove()
     {
         var simulator = gameManager.simulator;
-        simulator.gutiMap = gameManager.GetBoard().GetGutiMap();
+        simulator.MakeReady();
         _moveList = simulator.ExtractMoves(gutiType);
         var gutiTypeTree = simulator.GetAllBoardStatesAsList(gutiType, _moveList);
         PopulateGutiTypeTree(gutiTypeTree);
@@ -64,13 +65,13 @@ public class GutiAgent : Agent
         else
             gameManager.DeclareWinner();
     }
-
+    
     public override void CollectObservations(VectorSensor sensor)
     {
         if (_iterator < 0)
         {
             sensor.AddObservation(new List<float>(new float[38]));
-               return;
+            return;
         }
         var gutiList = _gutiTypeTree[_iterator++];
         sensor.AddObservation(gutiList);
@@ -109,21 +110,13 @@ public class GutiAgent : Agent
         }
     }
 
+
     private Move AgentMove(int moveIndex)
     {
-        try
-        {
-            var move = _moveList[moveIndex];
-            gameManager.GetBoard().MoveGuti(move);
-            gameManager.GetPlayer(gutiType).UpdateScore(move);
-            return move;
-        }           
-        catch (Exception e)
-        {
-            Debug.Log("AgentMove in Player Broke at Index:" + moveIndex);
-            Debug.Log(e);
-        }
-        return null;
+        var move = _moveList[moveIndex];
+        gameManager.GetBoard().MoveGuti(move);
+        gameManager.GetPlayer(gutiType).UpdateScore(move);
+        return move;
     }
 
     private void UpdateMaxState(float val)
@@ -131,6 +124,8 @@ public class GutiAgent : Agent
         if (!(val > _maxValue)) return;
         _maxIndex = _iterator <= 0 ? 0 : _iterator - 1;
         _maxValue = val;
+        // add this index to A list
+        // unless it exceeds 4 values
     }
 
 

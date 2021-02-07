@@ -69,9 +69,9 @@ public class GameManager : MonoBehaviour
             _playerMap = new Dictionary<GutiType, Player>();
             // _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.Human, this);
             // _playerMap[GutiType.RedGuti] = new Player(GutiType.RedGuti, PlayerType.Human, this);
-            _playerMap[GutiType.RedGuti] = new Player(GutiType.RedGuti, PlayerType.AI, this, 1);
+            _playerMap[GutiType.RedGuti] = new PlayerMinMax(GutiType.RedGuti, PlayerType.AI, this, new MinMaxAi(GutiType.RedGuti, simulator), 1);
             // _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.AI, this, 3);
-            _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.RLA, this);
+            _playerMap[GutiType.GreenGuti] = new PlayerRla(GutiType.GreenGuti, PlayerType.RLA, this, agent);
         }
         else
         {
@@ -113,9 +113,10 @@ public class GameManager : MonoBehaviour
         {
             case PlayerType.RLA:
                 LockStep();
-                player.MakeMove();
+                move = player.MakeMove();
                 return;
-            case PlayerType.Human when player.SelectedMove == null:
+            case PlayerType.Human:
+                if (player is PlayerHuman) move = player.MakeMove();
                 return;
             case PlayerType.AI:
                 move = player.MakeMove();
@@ -123,6 +124,8 @@ public class GameManager : MonoBehaviour
             default:
                 throw new ArgumentOutOfRangeException();
         }
+        if(move == null) return;
+        board.MoveGuti(move);
         EndStep(_currentTurnGutiType, move);
         UnlockStep();
     }
@@ -162,10 +165,10 @@ public class GameManager : MonoBehaviour
     public void ProcessHumanInput(GameObject go)
     {
         var guti = go.GetComponent<Guti>();
-        var player = _playerMap[_currentTurnGutiType];
-        if (_playerMap[_currentTurnGutiType].PlayerType != PlayerType.Human)
+        if (_playerMap[_currentTurnGutiType].PlayerType == PlayerType.AI)
         {
-            // TODO: Make Button to HighLight Move that AI MinMax wants to take
+            var player = _playerMap[_currentTurnGutiType] as PlayerMinMax;
+            if (player == null) return;
             var ai = player.GetMinMaxAi();
             var projectedScore = 0;
             var move = ai.MinMax(guti.gutiType, 1, ref projectedScore);
@@ -174,6 +177,7 @@ public class GameManager : MonoBehaviour
         }
         if (guti.gutiType == GutiType.Highlight)
         {
+            if (!(_playerMap[_currentTurnGutiType] is PlayerHuman player)) return;
             if(player.SelectedMove == null) return;
             player.SelectedMove.targetAddress = guti.address;
             UnlockStep();
@@ -181,8 +185,8 @@ public class GameManager : MonoBehaviour
         else if (_currentTurnGutiType == guti.gutiType)
         {
             var selectedAddress = guti.address;
-            player.SelectedMove = new Move();
-            player.SelectedMove.sourceAddress = selectedAddress;
+            if (_playerMap[_currentTurnGutiType] is PlayerHuman player) 
+                player.SelectedMove = new Move {sourceAddress = selectedAddress};
             SpawnHighlights(selectedAddress);
         }
         else
