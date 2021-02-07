@@ -183,6 +183,7 @@ public class GameManager : MonoBehaviour
         {
             if (!(_playerMap[_currentTurnGutiType] is PlayerHuman player)) return;
             if(player.SelectedMove == null) return;
+            if(player.SelectedMove.sourceAddress == guti.address) return;
             player.SelectedMove.targetAddress = guti.address;
             UnlockStep();
         }
