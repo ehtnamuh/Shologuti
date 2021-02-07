@@ -8,11 +8,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button pauseBtn;
 
     private Text _pauseBtnText;
-    private GameManager _gameManager;
-    
+
     public void Awake()
     {
-        _gameManager = gameObject.GetComponent<GameManager>();
         _pauseBtnText = pauseBtn.GetComponentInChildren<Text>();
     }
 
@@ -24,17 +22,17 @@ public class UIManager : MonoBehaviour
 
     public void Step()
     {
-        if (_gameManager.gameStateManager.GameState != GameState.Paused && _gameManager.gameStateManager.GameState != GameState.InPlay)
+        if (GameManager.instance.gameStateManager.GameState != GameState.Paused && GameManager.instance.gameStateManager.GameState != GameState.InPlay)
         {
             Debug.Log("Game Ended. Hit Restart");
             return;
         }
-        _gameManager.NextStep();
+        GameManager.instance.NextStep();
     }
 
     public void Pause()
     {
-        var gameStateManager = _gameManager.gameStateManager;
+        var gameStateManager = GameManager.instance.gameStateManager;
         switch (gameStateManager.GameState)
         {
             case GameState.InPlay:
@@ -54,8 +52,8 @@ public class UIManager : MonoBehaviour
 
     public void Restart()
     {
-        _gameManager.DeclareWinner();
-        _gameManager.Restart();  
+        GameManager.instance.DeclareWinner();
+        GameManager.instance.Restart();  
     } 
         
     

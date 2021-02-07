@@ -86,11 +86,11 @@ public class GameManager : MonoBehaviour
         if (_playerMap == null)
         {
             _playerMap = new Dictionary<GutiType, BasePlayer>();
-            // _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.Human, this);
-            // _playerMap[GutiType.RedGuti] = new BasePlayerHuman(GutiType.RedGuti, PlayerType.Human, this);
+            // _playerMap[GutiType.GreenGuti] = new PlayerHuman(GutiType.GreenGuti, PlayerType.Human);
+            // _playerMap[GutiType.RedGuti] = new PlayerHuman(GutiType.RedGuti, PlayerType.Human);
             _playerMap[GutiType.RedGuti] = new PlayerMinMax(GutiType.RedGuti, PlayerType.AI, new MinMaxAi(GutiType.RedGuti, simulator), 1);
-            // _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.AI, this, 3);
-            _playerMap[GutiType.GreenGuti] = new PlayerRla(GutiType.GreenGuti, PlayerType.RLA, agent);
+            _playerMap[GutiType.GreenGuti] = new PlayerMinMax(GutiType.GreenGuti, PlayerType.AI, new MinMaxAi(GutiType.GreenGuti, simulator), 3);
+            // _playerMap[GutiType.GreenGuti] = new PlayerRla(GutiType.GreenGuti, PlayerType.RLA, agent);
         }
         else
         {
