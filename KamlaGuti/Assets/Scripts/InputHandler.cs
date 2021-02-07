@@ -10,7 +10,6 @@ public class InputHandler : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(worldPosition, new Vector3(0, 0, 1), 1000);
         if (hit)
         {
-            Debug.Log("Kraut");
             GameManager.instance.ProcessHumanInput(hit.collider.gameObject);
         }
         else

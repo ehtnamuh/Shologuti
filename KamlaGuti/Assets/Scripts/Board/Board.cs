@@ -74,6 +74,7 @@ namespace Board
 		{
 			var walkableNeighbours = _gutiMap.GetWalkableNodes(address);
 			boardGui.HighlightWalkableNodes(walkableNeighbours);
+			boardGui.SpawnHighlightNode(address, Color.black);
 		}
 	
 		// returns COPY of the Logical Map of the Game
