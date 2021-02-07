@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Board.Guti;
 using UnityEngine;
 
 public class Simulator : MonoBehaviour
 {
-    [SerializeField] private Board board;
+    [SerializeField] private Board.Board board;
     [SerializeField] private int minMaxReward = 1;
     [SerializeField] private int minMaxPenalty = 1;
     public GutiMap gutiMap;
@@ -32,13 +33,13 @@ public class Simulator : MonoBehaviour
         gutiMap.MoveGuti(move.targetAddress, move.sourceAddress);
         if (!gutiMap.CanCaptureGuti(move.sourceAddress, move.targetAddress)) return;
         var capturedGuti = gutiMap.GetCapturedGutiAddress(move.sourceAddress, move.targetAddress);
-        var tempGutiType = ChangeGutiType(gutiType);
+        var tempGutiType = GutiNode.ChangeGutiType(gutiType);
         gutiMap.RestoreGuti(capturedGuti, tempGutiType);
     }
     
     public List<Move> ExtractMoves(GutiType gutiType)
     {
-        var playerGutiAddress = gutiMap.GetGutisOfType(gutiType);
+        var playerGutiAddress = gutiMap.GetGutiListOfType(gutiType);
         var list = new List<Move>();
         foreach (var source in playerGutiAddress)
         {
@@ -60,9 +61,7 @@ public class Simulator : MonoBehaviour
         }
         return gutiTypeTree;
     }
-
-    public static GutiType ChangeGutiType(GutiType gutiType) => gutiType == GutiType.GreenGuti ? GutiType.RedGuti : GutiType.GreenGuti;
     
-    public bool CanContinueTurn(Move move) => (board.HasCapturedGuti(move) &&  board.CanCaptureGuti(move.targetAddress));
+    // public bool CanContinueTurn(Move move) => (board.HasCapturedGuti(move) &&  board.CanCaptureGuti(move.targetAddress));
 
 }

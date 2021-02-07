@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using Board.Guti;
 using Random = UnityEngine.Random;
 
 public class MinMaxAi
@@ -34,7 +34,7 @@ public class MinMaxAi
             var score = 0;
             score += _simulator.PredictMoveValue(move,_playerGutiType, gutiType);
             _simulator.MoveGuti(move, gutiType);
-            if (_simulator.CanContinueTurn(move))
+            if (RuleBook.CanContinueTurn(move))
             {
                 var tempScore = 0;
                 MinMax(gutiType, --tempExplorationDepth, ref tempScore);
@@ -43,7 +43,7 @@ public class MinMaxAi
             else
             {
                 var tempScore = 0;
-                var tempGutiType = Simulator.ChangeGutiType(gutiType);
+                var tempGutiType = GutiNode.ChangeGutiType(gutiType);
                 MinMax(tempGutiType, --tempExplorationDepth, ref tempScore);
                 score -= tempScore;
             }

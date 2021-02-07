@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Board.Guti;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
@@ -7,13 +8,14 @@ using Random = UnityEngine.Random;
 
 public class GutiAgent : Agent
 {
-    [SerializeField] private GameManager gameManager;
     private List<List<float>> _gutiTypeTree;
     public GutiType gutiType;
 
-    private int iterator;
-    private int maxIndex;
-    private float maxValue;
+    private int _iterator;
+    private int _maxIndex;
+    private float _maxValue;
+    private int _actionIndex;
+    private int explorationDepth;
     private List<Move> _moveList;
     
     public override void Initialize()
@@ -31,49 +33,49 @@ public class GutiAgent : Agent
 
     private void Init()
     {
-        iterator = -1;
-        maxIndex = -1;
-        maxValue = -1;
+        _actionIndex = gutiType == GutiType.GreenGuti ? 0 : 1;
+        _iterator = -1;
+        _maxIndex = -1;
+        _maxValue = -1;
         _gutiTypeTree = null;
     }
     
     public override void OnEpisodeBegin()
     {
         Init();
-        if (gameManager.GetGameState() == GameState.GreenWin || gameManager.GetGameState() == GameState.RedWin || gameManager.GetGameState() == GameState.Draw)
-            gameManager.Restart();
+        var gameState = GameManager.instance.gameStateManager.GameState;
+        if (gameState == GameState.GreenWin || gameState == GameState.RedWin || gameState == GameState.Draw)
+            GameManager.instance.Restart();
     }
     
-    public List<Move> MakeMove()
+    public void MakeMove()
     {
-        var simulator = gameManager.simulator;
-        simulator.gutiMap = gameManager.GetBoard().GetGutiMap();
+        var simulator = GameManager.instance.simulator;
+        simulator.MakeReady();
         _moveList = simulator.ExtractMoves(gutiType);
         var gutiTypeTree = simulator.GetAllBoardStatesAsList(gutiType, _moveList);
         PopulateGutiTypeTree(gutiTypeTree);
         RequestDecision();
-        return _moveList;
     }
 
     private void PopulateGutiTypeTree(List<List<float>> gutiTypeTree)
     {
         _gutiTypeTree = gutiTypeTree;
-        if (_gutiTypeTree.Count > 0) iterator = 0;
+        if (_gutiTypeTree.Count > 0) _iterator = 0;
         else
-            gameManager.DeclareWinner();
+            GameManager.instance.DeclareWinner();
     }
-
+    
     public override void CollectObservations(VectorSensor sensor)
     {
-        if (iterator < 0)
+        if (_iterator < 0)
         {
-               // Debug.Log("Collect Observation Called by Unity Housekeeping.. appending empty observation");
-               sensor.AddObservation(new List<float>(new float[38]));
-               return;
+            sensor.AddObservation(new List<float>(new float[38]));
+            return;
         }
-        var gutiList = _gutiTypeTree[iterator++];
+        var gutiList = _gutiTypeTree[_iterator++];
         sensor.AddObservation(gutiList);
-        if (iterator < _gutiTypeTree.Count)
+        if (_iterator < _gutiTypeTree.Count)
             sensor.AddObservation(1.0f);
         else
             sensor.AddObservation(-2.0f);
@@ -84,7 +86,7 @@ public class GutiAgent : Agent
     {
         if (_gutiTypeTree == null)
             return;
-        if (iterator < _gutiTypeTree.Count)
+        if (_iterator < _gutiTypeTree.Count)
         {
             UpdateMaxState(vectorAction[0]);
             SetReward(0);
@@ -92,49 +94,42 @@ public class GutiAgent : Agent
         }
         else
         {
-            if (iterator < 0)
+            if (_iterator < 0)
             {
-                gameManager.DeclareWinner(); // If no possible moves, (indicating end of game) iterator will be unset    
+                GameManager.instance.DeclareWinner(); // If no possible moves, (indicating end of game) iterator will be unset    
                 return;
             }
             // If only one move was available, maxIndex will be unset
-            if (maxIndex == -1) maxIndex = 0;
-            var move = AgentMove(maxIndex);
-            var reward = gameManager.GetScoreDifference(gutiType) / 16.0f;
+            if (_maxIndex == -1) _maxIndex = 0;
+            var move = AgentMove(_maxIndex);
+            var reward =  GameManager.instance.scoreboard.GetScoreDifference(gutiType) / 16.0f;
             SetReward(reward);
-            gameManager.EndStep(gutiType, move);
-            gameManager.UnlockStep();
+            GameManager.instance.EndStep(gutiType, move);
+            GameManager.instance.UnlockStep();
             Init();
         }
     }
 
+
     private Move AgentMove(int moveIndex)
     {
-        try
-        {
-            var move = _moveList[moveIndex];
-            gameManager.GetBoard().MoveGuti(move);
-            gameManager.GetPlayer(gutiType).UpdateScore(move);
-            return move;
-        }           
-        catch (Exception e)
-        {
-            Debug.Log("AgentMove in Player Broke at Index:" + moveIndex);
-            Debug.Log(e);
-        }
-        return null;
+        var move = _moveList[moveIndex];
+        GameManager.instance.GetBoard().MoveGuti(move);
+        GameManager.instance.GetPlayer(gutiType).UpdateScore(move);
+        return move;
     }
 
     private void UpdateMaxState(float val)
     {
-        if (!(val > maxValue)) return;
-        maxIndex = iterator <= 0 ? 0 : iterator - 1;
-        maxValue = val;
+        if (!(val > _maxValue)) return;
+        _maxIndex = _iterator <= 0 ? 0 : _iterator - 1;
+        _maxValue = val;
     }
 
 
     public override void Heuristic(float[] actionsOut)
     {
         actionsOut[0] = Random.value;
+        actionsOut[1] = 1.0f - actionsOut[0];
     }
 }

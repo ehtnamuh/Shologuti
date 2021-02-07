@@ -1,46 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
+using Board.Guti;
+using Board.View;
+using Player;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-
-public enum GameState
-{
-    InPlay = 0,
-    RedWin = 1,
-    GreenWin = 2,
-    Paused = 3,
-    Draw = 4
-}
-
+[RequireComponent(typeof(Board.Board))]
+[RequireComponent(typeof(Simulator))]
+[RequireComponent(typeof(GameStateManager))]
+[RequireComponent(typeof(Scoreboard))]
 public class GameManager : MonoBehaviour
 {
+    public static GameManager instance;
+    
     [SerializeField] private float timeScale = 5.0f;
-    [SerializeField] private Board board;
+    [SerializeField] private Board.Board board;
     [SerializeField] public Simulator simulator;
+    [SerializeField] public GameStateManager gameStateManager;
+    [SerializeField] public Scoreboard scoreboard;
     public UIManager uiManager;
     public GutiAgent agent;
     
-    public int scoreUnit;
     public int maxStepCount;
     public bool autoPlay;
 
     private int _currentStepCount = 0;
-    private GameState _gameState = GameState.InPlay;
     private GutiType _currentTurnGutiType;
-    private Dictionary<GutiType, Player> _playerMap = null;
+    private Dictionary<GutiType, BasePlayer> _playerMap = null;
 
     private bool _stepEnded;
 
     #region StartRestart
 
+    public void Awake() => MakeSingleton();
+
+    private void MakeSingleton()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(instance.gameObject);
+        }
+        else
+        {
+            Destroy(instance.gameObject);
+        }
+    }
+
     private void Start()
     {
         LockStep();
-        uiManager = gameObject.GetComponent<UIManager>();
         maxStepCount = maxStepCount == 0 ? 200 : maxStepCount;
         Init();
-        _gameState = GameState.InPlay; // Using SetGameState() can cause failure if UIManager fails to load in time
+        gameStateManager.SetGameState(GameState.InPlay); // Using SetGameState() can cause failure if UIManager fails to load in time
         UnlockStep();
     }
 
@@ -49,7 +62,7 @@ public class GameManager : MonoBehaviour
         LockStep();
         board.Restart();
         Init();
-        SetGameState(GameState.InPlay);
+        gameStateManager.SetGameState(GameState.InPlay);
         UnlockStep();
     }
 
@@ -62,6 +75,7 @@ public class GameManager : MonoBehaviour
     {
         _currentTurnGutiType = Random.value > 0.5? GutiType.GreenGuti : GutiType.RedGuti;
         _currentStepCount = 0;
+        uiManager.Init();
         InitPlayers();
         InitScoreboard();
         Time.timeScale = timeScale;
@@ -71,12 +85,12 @@ public class GameManager : MonoBehaviour
     {
         if (_playerMap == null)
         {
-            _playerMap = new Dictionary<GutiType, Player>();
+            _playerMap = new Dictionary<GutiType, BasePlayer>();
             // _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.Human, this);
-            // _playerMap[GutiType.RedGuti] = new Player(GutiType.RedGuti, PlayerType.Human, this);
-            _playerMap[GutiType.RedGuti] = new Player(GutiType.RedGuti, PlayerType.AI, this, 1);
+            // _playerMap[GutiType.RedGuti] = new BasePlayerHuman(GutiType.RedGuti, PlayerType.Human, this);
+            _playerMap[GutiType.RedGuti] = new PlayerMinMax(GutiType.RedGuti, PlayerType.AI, new MinMaxAi(GutiType.RedGuti, simulator), 1);
             // _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.AI, this, 3);
-            _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.RLA, this);
+            _playerMap[GutiType.GreenGuti] = new PlayerRla(GutiType.GreenGuti, PlayerType.RLA, agent);
         }
         else
         {
@@ -88,8 +102,8 @@ public class GameManager : MonoBehaviour
     
     private void InitScoreboard()
     {
-        uiManager.UpdateScoreboard(GutiType.RedGuti,  _playerMap[GutiType.RedGuti].ToString());
-        uiManager.UpdateScoreboard(GutiType.GreenGuti,  _playerMap[GutiType.GreenGuti].ToString());
+        scoreboard.UpdateScoreboard(GutiType.RedGuti,  _playerMap[GutiType.RedGuti].ToString());
+        scoreboard.UpdateScoreboard(GutiType.GreenGuti,  _playerMap[GutiType.GreenGuti].ToString());
     }
 
     #endregion
@@ -98,7 +112,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (_gameState != GameState.InPlay)
+        if (gameStateManager.GameState != GameState.InPlay)
             return;
         if (_stepEnded) NextStep();
     }
@@ -112,34 +126,19 @@ public class GameManager : MonoBehaviour
         _currentStepCount++;
         // Taking appropriate Actions According to Player type
         var player = _playerMap[_currentTurnGutiType];
-        Move move;
-        switch (player.PlayerType)
-        {
-            case PlayerType.RLA:
-                LockStep();
-                move = player.MakeMove();
-                return;
-            case PlayerType.Human when player.SelectedMove == null:
-                return;
-            case PlayerType.AI:
-                move = player.MakeMove();
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+        var move = player.GetMove();
+        if(move == null) return;
+        board.MoveGuti(move);
+        
         EndStep(_currentTurnGutiType, move);
         UnlockStep();
     }
 
-    private void LockStep() => _stepEnded = false;
-
-    public void UnlockStep() => _stepEnded = true;
-
     public void EndStep(GutiType gutiType, Move move)
     {
         var player = _playerMap[gutiType];
-        var canContinueTurn = simulator.CanContinueTurn(move);
-        UpdateScoreboard(player);
+        var canContinueTurn = RuleBook.CanContinueTurn(move);
+        scoreboard.UpdateScoreboard(player);
         if(!canContinueTurn) ChangeTurn();     
         if(player.CapturedGutiCount >= 16) DeclareWinner();
     }
@@ -153,48 +152,36 @@ public class GameManager : MonoBehaviour
             winningGutiType = _playerMap[GutiType.GreenGuti].GetScore() > _playerMap[GutiType.RedGuti].GetScore()
                 ? GutiType.GreenGuti
                 : GutiType.RedGuti;
-        SetGameEndState(winningGutiType);
+        gameStateManager.SetGameEndState(winningGutiType);
         if (_playerMap[GutiType.GreenGuti].PlayerType != PlayerType.RLA &&
             _playerMap[GutiType.RedGuti].PlayerType != PlayerType.RLA) return;
         if (autoPlay) agent.EndEpisode();
     }
 
-    #endregion
+    private void LockStep() => _stepEnded = false;
 
-    #region GameState
-    public void SetGameState(GameState gameState)
-    {
-        _gameState = gameState;
-        uiManager.UpdateGameStatus(gameState);
-    }
-
-    public GameState GetGameState() => _gameState;
-
-    private void SetGameEndState(GutiType gutiType)
-    {
-        var gameState = gutiType == GutiType.GreenGuti ? GameState.GreenWin : GameState.RedWin;
-        SetGameState(gameState);
-    }
+    public void UnlockStep() => _stepEnded = true;
     
     #endregion
-
+    
     #region Human Input
 
     public void ProcessHumanInput(GameObject go)
     {
         var guti = go.GetComponent<Guti>();
-        var player = _playerMap[_currentTurnGutiType];
-        if (_playerMap[_currentTurnGutiType].PlayerType != PlayerType.Human)
+        if (_playerMap[_currentTurnGutiType].PlayerType == PlayerType.AI)
         {
-            // TODO: Make Button to HighLight Move that AI MinMax wants to take
+            var player = _playerMap[_currentTurnGutiType] as PlayerMinMax;
+            if (player == null) return;
             var ai = player.GetMinMaxAi();
             var projectedScore = 0;
             var move = ai.MinMax(guti.gutiType, 1, ref projectedScore);
-            board.HighlightMove(move);
+            board.boardGui.HighlightMove(move);
             return;
         }
         if (guti.gutiType == GutiType.Highlight)
         {
+            if (!(_playerMap[_currentTurnGutiType] is PlayerHuman player)) return;
             if(player.SelectedMove == null) return;
             player.SelectedMove.targetAddress = guti.address;
             UnlockStep();
@@ -202,8 +189,8 @@ public class GameManager : MonoBehaviour
         else if (_currentTurnGutiType == guti.gutiType)
         {
             var selectedAddress = guti.address;
-            player.SelectedMove = new Move();
-            player.SelectedMove.sourceAddress = selectedAddress;
+            if (_playerMap[_currentTurnGutiType] is PlayerHuman player) 
+                player.SelectedMove = new Move {sourceAddress = selectedAddress};
             SpawnHighlights(selectedAddress);
         }
         else
@@ -212,33 +199,22 @@ public class GameManager : MonoBehaviour
 
     private void SpawnHighlights(Address selectedAddress)
     {
-        board.SpawnHighlightNode(selectedAddress, Color.white);
+        board.boardGui.SpawnHighlightNode(selectedAddress, Color.white);
         board.HighlightWalkableNodes(selectedAddress);
     }
     
-    public void ClearHighlights() => board.ClearHighlightedNodes();
+    public void ClearHighlights() => board.boardGui.ClearHighlightedNodes();
 
     #endregion
     
     #region Utilities
 
-    public Board GetBoard() => board;
+    public Board.Board GetBoard() => board;
     
-    public Player GetPlayer(GutiType gutiType) => _playerMap[gutiType];
+    public BasePlayer GetPlayer(GutiType gutiType) => _playerMap[gutiType];
 
-    #endregion
-
-    #region  Scoring
-
-    public float GetScoreDifference(GutiType gutiType)
-    {
-        if (gutiType == GutiType.GreenGuti)
-            return _playerMap[GutiType.GreenGuti].GetScore() - _playerMap[GutiType.RedGuti].GetScore();
-        return _playerMap[GutiType.RedGuti].GetScore() - _playerMap[GutiType.GreenGuti].GetScore();
-    }
-    private void UpdateScoreboard(Player player) => uiManager.UpdateScoreboard(player.GetGutiType(), player.ToString());
-
+    private void ChangeTurn() => _currentTurnGutiType = GutiNode.ChangeGutiType(_currentTurnGutiType);
     #endregion
     
-    private void ChangeTurn() => _currentTurnGutiType = _currentTurnGutiType == GutiType.GreenGuti ? GutiType.RedGuti : GutiType.GreenGuti;
+    
 }
