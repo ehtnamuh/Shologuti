@@ -1,188 +1,94 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using Board.Guti;
+using Board.View;
 using UnityEngine;
 
-public class Board : MonoBehaviour
+namespace Board
 {
-	[SerializeField] private GameObject gutiPrefab;
-
-	public GutiMap GutiMap => _gutiMap;
-	private GutiMap _gutiMap; // logical state of the board
-	
-	private Dictionary<Address, Guti> _gutiGoMap;
-	private List<GameObject> _highlightedNodes;
-	private GutiNode[] _gutiNodesArray;
-	private List<Move> _moveLog; // Can be used to log moves till the end of episode, to enable Ctrl+Z
-	
-	private void Awake()
+	public class Board : MonoBehaviour
 	{
+		public BoardGui boardGui;
+		private GutiMap _gutiMap; // logical state of the board
+		private GutiNode[] _gutiNodesArray;
+
+		private void Awake()
+		{
+			_gutiMap = new GutiMap();
+			boardGui = gameObject.GetComponent<BoardGui>();
+			boardGui.Init();
+			LoadFromJson();
+			Init();
+		}
+
+		private void Init()
+		{
+			// Storing Gutis in dictionary using Map as address
+			// Creating Game objects to visually represent condition of GutiMap
 		
-		_gutiMap = new GutiMap();
-		_gutiGoMap = new Dictionary<Address, Guti>();
-		_highlightedNodes = new List<GameObject>();
-		LoadFromJson();
-		Init();
-	}
+			foreach (var gutiNodeParent in _gutiNodesArray)
+			{
+				var gutiNode = gutiNodeParent.GetCopy();
+				// All gutis, empty, green or red MUST be added to the logical GutiMap
+				_gutiMap.AddGuti(gutiNode.Address, gutiNode);
+				// if the gutiType is empty, No need to create Visual Game object
+				if (gutiNode.gutiType == GutiType.NoGuti) continue;
+				boardGui.CreateGutiGo(gutiNode);
+			}
 
-	private void Init()
-	{
-		// Storing Gutis in dictionary using Map as address
-		// Creating Game objects to visually represent condition of GutiMap
-		foreach (var gutiNodeParent in _gutiNodesArray)
-		{
-			var gutiNode = gutiNodeParent.GetCopy();
-			// All gutis, empty, green or red MUST be added to the logical GutiMap
-			_gutiMap.AddGuti(gutiNode.Address, gutiNode);
-			// if the gutiType is empty, No need to create Visual Game object
-			if (gutiNode.gutiType == GutiType.NoGuti) continue;
-			var gutiGo = Instantiate(gutiPrefab, gameObject.transform, true);
-			// attach logical guti to Guti Object
-			var guti = gutiGo.GetComponent<Guti>();
-			guti.SetAddress(gutiNode.Address);
-			guti.SetGutiType(gutiNode.gutiType);
-			_gutiGoMap[guti.address] = guti;
+			RuleBook.Init(_gutiMap);
 		}
-		RuleBook.gutiMap = _gutiMap;
-	}
 
-	private void LoadFromJson()
-	{
-		var textAsset = Resources.Load<TextAsset>("Board");
-		var data = textAsset.text;
-		var fromJson = JsonUtility.FromJson<GutiNodes>(data);
-		_gutiNodesArray = fromJson.gutiArray;
-	}
-
-	public void Restart()
-	{
-		DeleteAllGutiGo();
-		_gutiMap = new GutiMap();
-		Init();
-	}
-
-	private void DeleteAllGutiGo()
-	{
-		foreach (var gutiGo in _gutiGoMap.ToList())
+		private void LoadFromJson()
 		{
-			Destroy(gutiGo.Value.gameObject);
-			_gutiGoMap.Remove(gutiGo.Key);
+			var textAsset = Resources.Load<TextAsset>("Board");
+			var data = textAsset.text;
+			var fromJson = JsonUtility.FromJson<GutiNodes>(data);
+			_gutiNodesArray = fromJson.gutiArray;
 		}
-	}
 
-	public void MoveGuti(Move move)
-	{
-		// TODO: moveLog to enable Ctrl+Z and Playtrace
-		var sourceAddress = move.sourceAddress;
-		var targetAddress = move.targetAddress;
-		// updating logical map
-		_gutiMap.CaptureGuti(sourceAddress, targetAddress);
-		if (RuleBook.CanCaptureGuti(move))
+		public void Restart()
 		{
-			var capturedGutiAddress = _gutiMap.GetCapturedGutiAddress(sourceAddress, targetAddress);
-			ClearCapturedGuti(capturedGutiAddress);
+			boardGui.DeleteAllGutiGo();
+			boardGui.ClearHighlightedNodes();
+			_gutiMap = new GutiMap();
+			Init();
 		}
-		// moving and updating visual map
-		try
-		{
-			_gutiGoMap[sourceAddress].SetAddress(targetAddress);
-			_gutiGoMap[targetAddress] = _gutiGoMap[sourceAddress];
-			_gutiGoMap.Remove(sourceAddress);
-		}
-		catch (Exception e)
-		{
-			Debug.Log($"Breaker: {_gutiMap.GetGutiType(sourceAddress)}");
-			Debug.Log($"Breaker Address: {sourceAddress}");
-			throw;
-		}
-		ClearHighlightedNodes();
-	}
 
-	// returns COPY of the Logical Map of the Game
-	public GutiMap GetGutiMap() => new GutiMap(_gutiMap);
+
+		public void MoveGuti(Move move)
+		{
+			var sourceAddress = move.sourceAddress;
+			var targetAddress = move.targetAddress;
+			// updating logical map
+			_gutiMap.CaptureGuti(sourceAddress, targetAddress);
+			if (RuleBook.CanCaptureGuti(move))
+			{
+				var capturedGutiAddress = _gutiMap.GetCapturedGutiAddress(sourceAddress, targetAddress);
+				boardGui.ClearCapturedGuti(capturedGutiAddress);
+			}
+			// moving and updating visual map
+			try
+			{
+				boardGui.UpdateGutiGo(move);
+			}
+			catch (Exception e)
+			{
+				Debug.Log($"Breaker: {_gutiMap.GetGutiType(sourceAddress)}");
+				Debug.Log($"Breaker Address: {sourceAddress}");
+				throw;
+			}
+			boardGui.ClearHighlightedNodes();
+		}
+
 	
-	private void ClearCapturedGuti(Address capturedGutiAddress)
-	{
-		Destroy(_gutiGoMap[capturedGutiAddress].gameObject);
-		_gutiGoMap.Remove(capturedGutiAddress);
-
-	}
-
-	public void ClearHighlightedNodes()
-	{
-		// TODO: Have a enabled and disabled highlightedNode Stack and queue 
-		foreach (var node in _highlightedNodes) Destroy(node);
-	}
-
-	public void SpawnHighlightNode(Address neighbourAddress, Color color)
-	{
-		var gutiGo = GameObject.Instantiate(gutiPrefab, gameObject.transform, true);
-		var guti = gutiGo.GetComponent<Guti>();
-		guti.SetAddress(neighbourAddress, scale: 1.0f);
-		guti.SetGutiType(GutiType.Highlight);
-		guti.SetGutiColor(color);
-		_highlightedNodes.Add(gutiGo);
-	}
-
-	public void HighlightMove(Move move)
-	{
-		ClearHighlightedNodes();
-		SpawnHighlightNode(move.sourceAddress, Color.white);
-		SpawnHighlightNode(move.targetAddress, Color.blue);
-	}
-
-	public void HighlightWalkableNodes(Address address)
-	{
-		ClearHighlightedNodes();
-		var walkableNeighbours = _gutiMap.GetWalkableNodes(address);
-		foreach (var neighbourAddress in walkableNeighbours) SpawnHighlightNode(neighbourAddress, Color.yellow);
+		public void HighlightWalkableNodes(Address address)
+		{
+			var walkableNeighbours = _gutiMap.GetWalkableNodes(address);
+			boardGui.HighlightWalkableNodes(walkableNeighbours);
+		}
+	
+		// returns COPY of the Logical Map of the Game
+		public GutiMap GetGutiMap() => new GutiMap(_gutiMap);
+	
 	}
 }
-
-public class BoardGui : MonoBehaviour
-{
-	
-	private Dictionary<Address, Guti> _gutiGoMap;
-	private List<GameObject> _highlightedNodes;
-	private GameObject gutiPrefab;
-	
-
-
-	private void ClearCapturedGuti(Address capturedGutiAddress)
-	{
-		Destroy(_gutiGoMap[capturedGutiAddress].gameObject);
-		_gutiGoMap.Remove(capturedGutiAddress);
-
-	}
-
-	public void ClearHighlightedNodes()
-	{
-		// TODO: Have a enabled and disabled highlightedNode Stack and queue 
-		foreach (var node in _highlightedNodes) Destroy(node);
-	}
-
-	public void SpawnHighlightNode(Address neighbourAddress, Color color)
-	{
-		var gutiGo = GameObject.Instantiate(gutiPrefab, gameObject.transform, true);
-		var guti = gutiGo.GetComponent<Guti>();
-		guti.SetAddress(neighbourAddress, scale: 1.0f);
-		guti.SetGutiType(GutiType.Highlight);
-		guti.SetGutiColor(color);
-		_highlightedNodes.Add(gutiGo);
-	}
-
-	public void HighlightMove(Move move)
-	{
-		ClearHighlightedNodes();
-		SpawnHighlightNode(move.sourceAddress, Color.white);
-		SpawnHighlightNode(move.targetAddress, Color.blue);
-	}
-
-	public void HighlightWalkableNodes(Address address)
-	{
-		ClearHighlightedNodes();
-		var walkableNeighbours = GameManager.instance.GetBoard().GutiMap.GetWalkableNodes(address);
-		foreach (var neighbourAddress in walkableNeighbours) SpawnHighlightNode(neighbourAddress, Color.yellow);
-	}
-}
-

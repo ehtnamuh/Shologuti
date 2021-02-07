@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using Board.Guti;
+using Board.View;
 using Player;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-[RequireComponent(typeof(Board))]
+[RequireComponent(typeof(Board.Board))]
 [RequireComponent(typeof(Simulator))]
 [RequireComponent(typeof(GameStateManager))]
 [RequireComponent(typeof(Scoreboard))]
@@ -13,7 +15,7 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;
     
     [SerializeField] private float timeScale = 5.0f;
-    [SerializeField] private Board board;
+    [SerializeField] private Board.Board board;
     [SerializeField] public Simulator simulator;
     [SerializeField] public GameStateManager gameStateManager;
     [SerializeField] public Scoreboard scoreboard;
@@ -174,7 +176,7 @@ public class GameManager : MonoBehaviour
             var ai = player.GetMinMaxAi();
             var projectedScore = 0;
             var move = ai.MinMax(guti.gutiType, 1, ref projectedScore);
-            board.HighlightMove(move);
+            board.boardGui.HighlightMove(move);
             return;
         }
         if (guti.gutiType == GutiType.Highlight)
@@ -197,17 +199,17 @@ public class GameManager : MonoBehaviour
 
     private void SpawnHighlights(Address selectedAddress)
     {
-        board.SpawnHighlightNode(selectedAddress, Color.white);
+        board.boardGui.SpawnHighlightNode(selectedAddress, Color.white);
         board.HighlightWalkableNodes(selectedAddress);
     }
     
-    public void ClearHighlights() => board.ClearHighlightedNodes();
+    public void ClearHighlights() => board.boardGui.ClearHighlightedNodes();
 
     #endregion
     
     #region Utilities
 
-    public Board GetBoard() => board;
+    public Board.Board GetBoard() => board;
     
     public BasePlayer GetPlayer(GutiType gutiType) => _playerMap[gutiType];
 

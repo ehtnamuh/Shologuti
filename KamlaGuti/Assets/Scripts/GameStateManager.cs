@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Board.Guti;
+using UnityEngine;
 using UnityEngine.UI;
 
 public enum GameState

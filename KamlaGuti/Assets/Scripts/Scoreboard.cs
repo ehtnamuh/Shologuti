@@ -1,4 +1,5 @@
-﻿using Player;
+﻿using Board.Guti;
+using Player;
 using UnityEngine;
 using UnityEngine.UI;
 

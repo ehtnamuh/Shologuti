@@ -1,4 +1,6 @@
-﻿namespace Player
+﻿using Board.Guti;
+
+namespace Player
 {
     public enum PlayerType
     {

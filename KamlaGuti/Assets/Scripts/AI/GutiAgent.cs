@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Board.Guti;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using UnityEngine;

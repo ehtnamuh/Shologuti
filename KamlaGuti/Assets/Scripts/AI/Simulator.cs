@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Board.Guti;
 using UnityEngine;
 
 public class Simulator : MonoBehaviour
 {
-    [SerializeField] private Board board;
+    [SerializeField] private Board.Board board;
     [SerializeField] private int minMaxReward = 1;
     [SerializeField] private int minMaxPenalty = 1;
     public GutiMap gutiMap;
