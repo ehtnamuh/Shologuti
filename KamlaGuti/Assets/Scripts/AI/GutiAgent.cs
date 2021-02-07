@@ -7,7 +7,6 @@ using Random = UnityEngine.Random;
 
 public class GutiAgent : Agent
 {
-    [SerializeField] private GameManager gameManager;
     private List<List<float>> _gutiTypeTree;
     public GutiType gutiType;
 
@@ -43,14 +42,14 @@ public class GutiAgent : Agent
     public override void OnEpisodeBegin()
     {
         Init();
-        var gameState = gameManager.gameStateManager.GameState;
+        var gameState = GameManager.instance.gameStateManager.GameState;
         if (gameState == GameState.GreenWin || gameState == GameState.RedWin || gameState == GameState.Draw)
-            gameManager.Restart();
+            GameManager.instance.Restart();
     }
     
     public void MakeMove()
     {
-        var simulator = gameManager.simulator;
+        var simulator = GameManager.instance.simulator;
         simulator.MakeReady();
         _moveList = simulator.ExtractMoves(gutiType);
         var gutiTypeTree = simulator.GetAllBoardStatesAsList(gutiType, _moveList);
@@ -63,7 +62,7 @@ public class GutiAgent : Agent
         _gutiTypeTree = gutiTypeTree;
         if (_gutiTypeTree.Count > 0) _iterator = 0;
         else
-            gameManager.DeclareWinner();
+            GameManager.instance.DeclareWinner();
     }
     
     public override void CollectObservations(VectorSensor sensor)
@@ -96,16 +95,16 @@ public class GutiAgent : Agent
         {
             if (_iterator < 0)
             {
-                gameManager.DeclareWinner(); // If no possible moves, (indicating end of game) iterator will be unset    
+                GameManager.instance.DeclareWinner(); // If no possible moves, (indicating end of game) iterator will be unset    
                 return;
             }
             // If only one move was available, maxIndex will be unset
             if (_maxIndex == -1) _maxIndex = 0;
             var move = AgentMove(_maxIndex);
-            var reward = gameManager.scoreboard.GetScoreDifference(gutiType) / 16.0f;
+            var reward =  GameManager.instance.scoreboard.GetScoreDifference(gutiType) / 16.0f;
             SetReward(reward);
-            gameManager.EndStep(gutiType, move);
-            gameManager.UnlockStep();
+            GameManager.instance.EndStep(gutiType, move);
+            GameManager.instance.UnlockStep();
             Init();
         }
     }
@@ -114,8 +113,8 @@ public class GutiAgent : Agent
     private Move AgentMove(int moveIndex)
     {
         var move = _moveList[moveIndex];
-        gameManager.GetBoard().MoveGuti(move);
-        gameManager.GetPlayer(gutiType).UpdateScore(move);
+        GameManager.instance.GetBoard().MoveGuti(move);
+        GameManager.instance.GetPlayer(gutiType).UpdateScore(move);
         return move;
     }
 
@@ -124,8 +123,6 @@ public class GutiAgent : Agent
         if (!(val > _maxValue)) return;
         _maxIndex = _iterator <= 0 ? 0 : _iterator - 1;
         _maxValue = val;
-        // add this index to A list
-        // unless it exceeds 4 values
     }
 
 

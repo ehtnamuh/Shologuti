@@ -10,6 +10,8 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(Scoreboard))]
 public class GameManager : MonoBehaviour
 {
+    public static GameManager instance;
+    
     [SerializeField] private float timeScale = 5.0f;
     [SerializeField] private Board board;
     [SerializeField] public Simulator simulator;
@@ -29,10 +31,24 @@ public class GameManager : MonoBehaviour
 
     #region StartRestart
 
+    public void Awake() => MakeSingleton();
+
+    private void MakeSingleton()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(instance.gameObject);
+        }
+        else
+        {
+            Destroy(instance.gameObject);
+        }
+    }
+
     private void Start()
     {
         LockStep();
-        uiManager = gameObject.GetComponent<UIManager>();
         maxStepCount = maxStepCount == 0 ? 200 : maxStepCount;
         Init();
         gameStateManager.SetGameState(GameState.InPlay); // Using SetGameState() can cause failure if UIManager fails to load in time
@@ -70,9 +86,9 @@ public class GameManager : MonoBehaviour
             _playerMap = new Dictionary<GutiType, BasePlayer>();
             // _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.Human, this);
             // _playerMap[GutiType.RedGuti] = new BasePlayerHuman(GutiType.RedGuti, PlayerType.Human, this);
-            _playerMap[GutiType.RedGuti] = new PlayerMinMax(GutiType.RedGuti, PlayerType.AI, this, new MinMaxAi(GutiType.RedGuti, simulator), 1);
+            _playerMap[GutiType.RedGuti] = new PlayerMinMax(GutiType.RedGuti, PlayerType.AI, new MinMaxAi(GutiType.RedGuti, simulator), 1);
             // _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.AI, this, 3);
-            _playerMap[GutiType.GreenGuti] = new PlayerRla(GutiType.GreenGuti, PlayerType.RLA, this, agent);
+            _playerMap[GutiType.GreenGuti] = new PlayerRla(GutiType.GreenGuti, PlayerType.RLA, agent);
         }
         else
         {

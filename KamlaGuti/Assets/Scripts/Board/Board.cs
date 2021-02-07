@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,15 +6,18 @@ using UnityEngine;
 public class Board : MonoBehaviour
 {
 	[SerializeField] private GameObject gutiPrefab;
+
+	public GutiMap GutiMap => _gutiMap;
 	private GutiMap _gutiMap; // logical state of the board
+	
 	private Dictionary<Address, Guti> _gutiGoMap;
 	private List<GameObject> _highlightedNodes;
 	private GutiNode[] _gutiNodesArray;
-
 	private List<Move> _moveLog; // Can be used to log moves till the end of episode, to enable Ctrl+Z
 	
 	private void Awake()
 	{
+		
 		_gutiMap = new GutiMap();
 		_gutiGoMap = new Dictionary<Address, Guti>();
 		_highlightedNodes = new List<GameObject>();
@@ -34,7 +36,7 @@ public class Board : MonoBehaviour
 			_gutiMap.AddGuti(gutiNode.Address, gutiNode);
 			// if the gutiType is empty, No need to create Visual Game object
 			if (gutiNode.gutiType == GutiType.NoGuti) continue;
-			var gutiGo = GameObject.Instantiate(gutiPrefab, gameObject.transform, true);
+			var gutiGo = Instantiate(gutiPrefab, gameObject.transform, true);
 			// attach logical guti to Guti Object
 			var guti = gutiGo.GetComponent<Guti>();
 			guti.SetAddress(gutiNode.Address);
@@ -67,12 +69,10 @@ public class Board : MonoBehaviour
 			_gutiGoMap.Remove(gutiGo.Key);
 		}
 	}
-	
 
 	public void MoveGuti(Move move)
 	{
 		// TODO: moveLog to enable Ctrl+Z and Playtrace
-		// _moveLog.Add(move);
 		var sourceAddress = move.sourceAddress;
 		var targetAddress = move.targetAddress;
 		// updating logical map
@@ -103,21 +103,10 @@ public class Board : MonoBehaviour
 	
 	private void ClearCapturedGuti(Address capturedGutiAddress)
 	{
-		try
-		{
-			Destroy(_gutiGoMap[capturedGutiAddress].gameObject);
-			_gutiGoMap.Remove(capturedGutiAddress);
-		}
-		catch (Exception e)
-		{
-			Debug.Log("From Board.ClearCapturedGuti: Invalid Address, no Game Object to Delete");
-		}
-		
+		Destroy(_gutiGoMap[capturedGutiAddress].gameObject);
+		_gutiGoMap.Remove(capturedGutiAddress);
+
 	}
-
-	public void ReverseLastMove() => throw new NotImplementedException();
-
-	public void GetLastMove() => throw new NotImplementedException();
 
 	public void ClearHighlightedNodes()
 	{
@@ -146,6 +135,53 @@ public class Board : MonoBehaviour
 	{
 		ClearHighlightedNodes();
 		var walkableNeighbours = _gutiMap.GetWalkableNodes(address);
+		foreach (var neighbourAddress in walkableNeighbours) SpawnHighlightNode(neighbourAddress, Color.yellow);
+	}
+}
+
+public class BoardGui : MonoBehaviour
+{
+	
+	private Dictionary<Address, Guti> _gutiGoMap;
+	private List<GameObject> _highlightedNodes;
+	private GameObject gutiPrefab;
+	
+
+
+	private void ClearCapturedGuti(Address capturedGutiAddress)
+	{
+		Destroy(_gutiGoMap[capturedGutiAddress].gameObject);
+		_gutiGoMap.Remove(capturedGutiAddress);
+
+	}
+
+	public void ClearHighlightedNodes()
+	{
+		// TODO: Have a enabled and disabled highlightedNode Stack and queue 
+		foreach (var node in _highlightedNodes) Destroy(node);
+	}
+
+	public void SpawnHighlightNode(Address neighbourAddress, Color color)
+	{
+		var gutiGo = GameObject.Instantiate(gutiPrefab, gameObject.transform, true);
+		var guti = gutiGo.GetComponent<Guti>();
+		guti.SetAddress(neighbourAddress, scale: 1.0f);
+		guti.SetGutiType(GutiType.Highlight);
+		guti.SetGutiColor(color);
+		_highlightedNodes.Add(gutiGo);
+	}
+
+	public void HighlightMove(Move move)
+	{
+		ClearHighlightedNodes();
+		SpawnHighlightNode(move.sourceAddress, Color.white);
+		SpawnHighlightNode(move.targetAddress, Color.blue);
+	}
+
+	public void HighlightWalkableNodes(Address address)
+	{
+		ClearHighlightedNodes();
+		var walkableNeighbours = GameManager.instance.GetBoard().GutiMap.GetWalkableNodes(address);
 		foreach (var neighbourAddress in walkableNeighbours) SpawnHighlightNode(neighbourAddress, Color.yellow);
 	}
 }

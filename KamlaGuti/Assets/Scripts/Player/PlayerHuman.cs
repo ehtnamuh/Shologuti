@@ -4,9 +4,8 @@
     {
         public Move SelectedMove { get; set; }
     
-        public PlayerHuman(GutiType gutiType, PlayerType tPlayerType, GameManager gameManager)
+        public PlayerHuman(GutiType gutiType, PlayerType tPlayerType)
         {
-            this.gameManager = gameManager;
             this.gutiType = gutiType;
             PlayerType = tPlayerType;
             CapturedGutiCount = 0;

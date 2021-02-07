@@ -11,7 +11,6 @@
     public abstract class BasePlayer
     {
         protected GutiType gutiType;
-        protected GameManager gameManager;
 
         public int CapturedGutiCount { get; set; }
         public PlayerType PlayerType { get; protected set; }
@@ -29,7 +28,7 @@
             if (RuleBook.CanCaptureGuti(move)) CapturedGutiCount++;
         }
 
-        public float GetScore() => CapturedGutiCount * gameManager.scoreboard.ScoreUnit;
+        public float GetScore() => CapturedGutiCount * GameManager.instance.scoreboard.ScoreUnit;
 
     }
 }

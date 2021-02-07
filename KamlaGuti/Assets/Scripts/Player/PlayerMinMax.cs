@@ -4,10 +4,9 @@
     {
         private readonly MinMaxAi _minMaxAi;
         private int _explorationDepth;
-        public PlayerMinMax(GutiType gutiType, PlayerType tPlayerType, GameManager gameManager, MinMaxAi minMaxAi, int explorationDepth = -1)
+        public PlayerMinMax(GutiType gutiType, PlayerType tPlayerType, MinMaxAi minMaxAi, int explorationDepth = -1)
         {
             _explorationDepth = explorationDepth<=0? 1: explorationDepth;
-            this.gameManager = gameManager;
             this.gutiType = gutiType;
             PlayerType = tPlayerType;
             CapturedGutiCount = 0;

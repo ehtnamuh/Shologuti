@@ -4,10 +4,9 @@
     {
         private readonly GutiAgent _agent;
         private int _explorationDepth;
-        public PlayerRla(GutiType gutiType, PlayerType tPlayerType, GameManager gameManager, GutiAgent agent, int explorationDepth = -1)
+        public PlayerRla(GutiType gutiType, PlayerType tPlayerType, GutiAgent agent, int explorationDepth = -1)
         {
             _explorationDepth = explorationDepth<=0? 1: explorationDepth;
-            this.gameManager = gameManager;
             this.gutiType = gutiType;
             PlayerType = tPlayerType;
             CapturedGutiCount = 0;
