@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
 
     private int _currentStepCount = 0;
     private GutiType _currentTurnGutiType;
-    private Dictionary<GutiType, Player> _playerMap = null;
+    private Dictionary<GutiType, BasePlayer> _playerMap = null;
 
     private bool _stepEnded;
 
@@ -66,9 +66,9 @@ public class GameManager : MonoBehaviour
     {
         if (_playerMap == null)
         {
-            _playerMap = new Dictionary<GutiType, Player>();
+            _playerMap = new Dictionary<GutiType, BasePlayer>();
             // _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.Human, this);
-            // _playerMap[GutiType.RedGuti] = new Player(GutiType.RedGuti, PlayerType.Human, this);
+            // _playerMap[GutiType.RedGuti] = new BasePlayerHuman(GutiType.RedGuti, PlayerType.Human, this);
             _playerMap[GutiType.RedGuti] = new PlayerMinMax(GutiType.RedGuti, PlayerType.AI, this, new MinMaxAi(GutiType.RedGuti, simulator), 1);
             // _playerMap[GutiType.GreenGuti] = new Player(GutiType.GreenGuti, PlayerType.AI, this, 3);
             _playerMap[GutiType.GreenGuti] = new PlayerRla(GutiType.GreenGuti, PlayerType.RLA, this, agent);
@@ -108,22 +108,7 @@ public class GameManager : MonoBehaviour
         _currentStepCount++;
         // Taking appropriate Actions According to Player type
         var player = _playerMap[_currentTurnGutiType];
-        Move move;
-        switch (player.PlayerType)
-        {
-            case PlayerType.RLA:
-                LockStep();
-                move = player.MakeMove();
-                return;
-            case PlayerType.Human:
-                if (player is PlayerHuman) move = player.MakeMove();
-                return;
-            case PlayerType.AI:
-                move = player.MakeMove();
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+        var move = player.GetMove();
         if(move == null) return;
         board.MoveGuti(move);
         EndStep(_currentTurnGutiType, move);
@@ -207,7 +192,7 @@ public class GameManager : MonoBehaviour
 
     public Board GetBoard() => board;
     
-    public Player GetPlayer(GutiType gutiType) => _playerMap[gutiType];
+    public BasePlayer GetPlayer(GutiType gutiType) => _playerMap[gutiType];
 
     private void ChangeTurn() => _currentTurnGutiType = GutiNode.ChangeGutiType(_currentTurnGutiType);
     #endregion

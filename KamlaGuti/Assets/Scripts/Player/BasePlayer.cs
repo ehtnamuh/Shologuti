@@ -1,6 +1,4 @@
-﻿using System;
-
-public enum PlayerType
+﻿public enum PlayerType
 {
     Human = 0,
     AI = 1,
@@ -8,7 +6,7 @@ public enum PlayerType
     
 }
 
-public abstract class Player
+public abstract class BasePlayer
 {
     protected GutiType gutiType;
     protected GameManager gameManager;
@@ -16,11 +14,11 @@ public abstract class Player
     public int CapturedGutiCount { get; set; }
     public PlayerType PlayerType { get; protected set; }
     
-    protected Player() {}
+    protected BasePlayer() {}
 
     public abstract void ReInit();
 
-    public abstract Move MakeMove();
+    public abstract Move GetMove();
 
     public GutiType GetGutiType() => gutiType;
 

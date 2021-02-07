@@ -16,7 +16,7 @@ public class Scoreboard : MonoBehaviour
             redScore.text = "Player 1\n"+ details;
     }
     
-    public void UpdateScoreboard(Player player) => UpdateScoreboard(player.GetGutiType(), player.ToString());
+    public void UpdateScoreboard(BasePlayer basePlayer) => UpdateScoreboard(basePlayer.GetGutiType(), basePlayer.ToString());
     
     public float GetScoreDifference(GutiType gutiType)
     {

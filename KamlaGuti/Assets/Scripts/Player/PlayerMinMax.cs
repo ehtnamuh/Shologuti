@@ -1,6 +1,6 @@
 ﻿using System;
 
-public class PlayerMinMax : Player
+public class PlayerMinMax : BasePlayer
 {
     private readonly MinMaxAi _minMaxAi;
     private int _explorationDepth;
@@ -15,7 +15,7 @@ public class PlayerMinMax : Player
     }
 
 
-    public override Move MakeMove()
+    public override Move GetMove()
     {
         var _ = 0;
         var move = _minMaxAi.MinMax(gutiType, _explorationDepth, ref _);

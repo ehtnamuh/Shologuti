@@ -1,4 +1,6 @@
-﻿public class PlayerHuman: Player
+﻿using UnityEngine;
+
+public class PlayerHuman: BasePlayer
 {
     public Move SelectedMove { get; set; }
     
@@ -11,7 +13,7 @@
         SelectedMove = null;
     }
     
-    public override Move MakeMove()
+    public override Move GetMove()
     {
         if(SelectedMove == null) return null;
         var move = SelectedMove;

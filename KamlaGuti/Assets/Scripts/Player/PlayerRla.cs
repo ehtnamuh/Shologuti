@@ -1,4 +1,4 @@
-﻿public class PlayerRla : Player
+﻿public class PlayerRla : BasePlayer
 {
     private readonly GutiAgent _agent;
     private int _explorationDepth;
@@ -13,7 +13,7 @@
         _agent.gutiType = this.gutiType;
     }
     
-    public override Move MakeMove()
+    public override Move GetMove()
     {
         _agent.MakeMove();
         return null;
