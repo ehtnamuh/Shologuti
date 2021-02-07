@@ -22,9 +22,8 @@ namespace Board
 
 		private void Init()
 		{
-			// Storing Gutis in dictionary using Map as address
+			// Storing Guti in dictionary using Map as address
 			// Creating Game objects to visually represent condition of GutiMap
-		
 			foreach (var gutiNodeParent in _gutiNodesArray)
 			{
 				var gutiNode = gutiNodeParent.GetCopy();
@@ -34,7 +33,6 @@ namespace Board
 				if (gutiNode.gutiType == GutiType.NoGuti) continue;
 				boardGui.CreateGutiGo(gutiNode);
 			}
-
 			RuleBook.Init(_gutiMap);
 		}
 
@@ -67,16 +65,7 @@ namespace Board
 				boardGui.ClearCapturedGuti(capturedGutiAddress);
 			}
 			// moving and updating visual map
-			try
-			{
-				boardGui.UpdateGutiGo(move);
-			}
-			catch (Exception e)
-			{
-				Debug.Log($"Breaker: {_gutiMap.GetGutiType(sourceAddress)}");
-				Debug.Log($"Breaker Address: {sourceAddress}");
-				throw;
-			}
+			boardGui.UpdateGutiGo(move);
 			boardGui.ClearHighlightedNodes();
 		}
 
