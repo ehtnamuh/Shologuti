@@ -7,22 +7,26 @@ using Random = UnityEngine.Random;
 public class MinMaxAi
 {
     private readonly Simulator _simulator;
-    private readonly GutiType _playerGutiType;
     private readonly int _captureUnitScore;
     private readonly int _loseUnitScore;
-
-    public MinMaxAi(GutiType playerGutiType, Simulator simulator,int captureUnitScore = 1, int loseUnitScore = 1)
+    private GutiMap _gutiMap;
+    
+    public MinMaxAi( Simulator simulator,int captureUnitScore = 1, int loseUnitScore = 1)
     {
         _simulator = simulator;
-        _playerGutiType = playerGutiType;
         _loseUnitScore = loseUnitScore == 0? 1: Math.Abs(loseUnitScore) ;
         _captureUnitScore = captureUnitScore == 0? 1: Math.Abs(captureUnitScore);
     }
-    
-    public Move MinMax(GutiType gutiType, int explorationDepth, ref int projectedScore)
+
+    public Move MinMax(GutiType rootGutiType, int explorationDepth, ref int projectedScore)
+    {
+        _simulator.MakeReady();
+        return MinMax(rootGutiType, rootGutiType, explorationDepth, ref projectedScore);
+    }
+
+    private Move MinMax(GutiType rootGutiType, GutiType gutiType, int explorationDepth, ref int projectedScore)
     {
         if(explorationDepth <= 0) return null;
-        _simulator.MakeReady();
         var moveList = _simulator.ExtractMoves(gutiType);
         var maxValueMoveList = new List<Move>();
         var maxScore = -2;
@@ -32,19 +36,19 @@ public class MinMaxAi
         {
             var tempExplorationDepth = explorationDepth;
             var score = 0;
-            score += _simulator.PredictMoveValue(move,_playerGutiType, gutiType);
+            score += _simulator.PredictMoveValue(move, rootGutiType, gutiType);
             _simulator.MoveGuti(move, gutiType);
             if (RuleBook.CanContinueTurn(move))
             {
                 var tempScore = 0;
-                MinMax(gutiType, --tempExplorationDepth, ref tempScore);
+                MinMax(gutiType, gutiType, --tempExplorationDepth, ref tempScore);
                 score += tempScore;
             }
             else
             {
                 var tempScore = 0;
                 var tempGutiType = GutiNode.ChangeGutiType(gutiType);
-                MinMax(tempGutiType, --tempExplorationDepth, ref tempScore);
+                MinMax(gutiType , tempGutiType, --tempExplorationDepth, ref tempScore);
                 score -= tempScore;
             }
             if (maxScore < score)

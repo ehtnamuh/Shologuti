@@ -61,7 +61,5 @@ public class Simulator : MonoBehaviour
         }
         return gutiTypeTree;
     }
-    
-    // public bool CanContinueTurn(Move move) => (board.HasCapturedGuti(move) &&  board.CanCaptureGuti(move.targetAddress));
 
 }

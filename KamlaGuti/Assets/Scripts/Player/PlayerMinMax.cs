@@ -25,17 +25,10 @@ namespace Player
         }
 
 
-        public override void ReInit()
-        {
-            ReInit(0);
-        }
-    
-        public void ReInit(int explorationDepth = -1)
-        {
-            _explorationDepth = explorationDepth<=0? 1: explorationDepth;
-            CapturedGutiCount = 0;
-        }
-    
+        public override void ReInit() => CapturedGutiCount = 0;
+
+        public void ReInit(int expDepth) => _explorationDepth = expDepth<=0? 1: expDepth;
+
         public MinMaxAi GetMinMaxAi() => _minMaxAi;
     
         public override string ToString() => $"Type: {PlayerType}\nDepth: {_explorationDepth}\nColor: {gutiType}\nScore: {CapturedGutiCount}";
