@@ -31,6 +31,7 @@ public  class GameStateManager: MonoBehaviour
         SetGameState(gameState);
     }
 
+    public bool HasGameEnded() => GameState == GameState.Draw || GameState == GameState.GreenWin || GameState == GameState.RedWin;
 }
 
 internal static class GameStateGuiUpdater

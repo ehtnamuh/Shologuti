@@ -15,7 +15,7 @@ public class GutiAgent : Agent
     private int _maxIndex;
     private float _maxValue;
     private int _actionIndex;
-    private int explorationDepth;
+    private int _explorationDepth;
     private List<Move> _moveList;
     
     public override void Initialize()
@@ -34,6 +34,7 @@ public class GutiAgent : Agent
     private void Init()
     {
         _actionIndex = gutiType == GutiType.GreenGuti ? 0 : 1;
+        _explorationDepth = 1;
         _iterator = -1;
         _maxIndex = -1;
         _maxValue = -1;
@@ -43,9 +44,9 @@ public class GutiAgent : Agent
     public override void OnEpisodeBegin()
     {
         Init();
-        var gameState = GameManager.instance.gameStateManager.GameState;
-        if (gameState == GameState.GreenWin || gameState == GameState.RedWin || gameState == GameState.Draw)
-            GameManager.instance.Restart();
+        // var gameState = GameManager.instance.gameStateManager.GameState;
+        // if (gameState == GameState.GreenWin || gameState == GameState.RedWin || gameState == GameState.Draw)
+        //     GameManager.instance.DeclareWinner();
     }
     
     public void MakeMove()
@@ -88,7 +89,7 @@ public class GutiAgent : Agent
             return;
         if (_iterator < _gutiTypeTree.Count)
         {
-            UpdateMaxState(vectorAction[0]);
+            UpdateMaxState(vectorAction[_actionIndex]);
             SetReward(0);
             RequestDecision();
         }
