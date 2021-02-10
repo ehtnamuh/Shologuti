@@ -1,11 +1,12 @@
-﻿using System;
-using Board.Guti;
+﻿using Board.Guti;
 using Unity.MLAgents.Sensors;
 using Random = UnityEngine.Random;
 
 public class PpoGutiAgent : GutiAgent
 {
     public override void Initialize() => MaxStep = 0;
+
+    // public override void OnEpisodeBegin() => Debug.Log("haia");
 
     public override void MakeMove() => RequestDecision();
 
