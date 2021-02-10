@@ -16,6 +16,6 @@ public abstract class GutiAgent : Agent
 
     public abstract override void OnActionReceived(float[] vectorAction);
 
-    protected abstract Move AgentMove(int moveIndex);
+    protected abstract Move AgentMove(Move move);
     
 }

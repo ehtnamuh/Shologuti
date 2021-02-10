@@ -81,7 +81,7 @@ public class TdGutiAgent : GutiAgent
         else
         {
             UpdateMaxState(vectorAction[_actionIndex]);
-            var move = AgentMove(_maxIndex);
+            var move = AgentMove(_moveList[_maxIndex]);
             var reward =  GameManager.instance.scoreboard.GetScoreDifference(gutiType) / 16.0f;
             SetReward(reward);
             GameManager.instance.EndStep(gutiType, move);
@@ -90,9 +90,8 @@ public class TdGutiAgent : GutiAgent
         }
     }
 
-    protected override Move AgentMove(int moveIndex)
+    protected override Move AgentMove(Move move)
     {
-        var move = _moveList[moveIndex];
         GameManager.instance.GetBoard().MoveGuti(move);
         GameManager.instance.GetPlayer(gutiType).UpdateScore(move);
         return move;

@@ -60,6 +60,7 @@ public class Simulator : MonoBehaviour
         return gutiTypeTree;
     }
     
-    
     public List<float> GetCurrentBoardStateAsList() => gutiMap.GetBoardStateAsList();
+
+    public Move GetMoveFromIndexes(int sourceIndex, int targetIndex) => new Move(board.GetAddressFromIndex(sourceIndex), board.GetAddressFromIndex(targetIndex));
 }
