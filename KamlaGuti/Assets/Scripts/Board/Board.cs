@@ -79,6 +79,7 @@ namespace Board
 	
 		// returns COPY of the Logical Map of the Game
 		public GutiMap GetGutiMap() => new GutiMap(_gutiMap);
-	
+
+		public Address GetAddressFromIndex(int addressIndex) => _gutiNodesArray[addressIndex].Address;
 	}
 }

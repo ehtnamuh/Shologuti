@@ -6,7 +6,7 @@ namespace Player
     {
         public Move SelectedMove { get; set; }
     
-        public PlayerHuman(GutiType gutiType, PlayerType tPlayerType)
+        public PlayerHuman(GutiType gutiType, PlayerType tPlayerType, GameManager gameManager) : base(gameManager)
         {
             this.gutiType = gutiType;
             PlayerType = tPlayerType;

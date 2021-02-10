@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 using Board.Guti;
 using UnityEngine;
 
@@ -13,14 +12,12 @@ public class Simulator : MonoBehaviour
 
     private void Start() => gutiMap = board.GetGutiMap();
 
-    public void MakeReady() => gutiMap = board.GetGutiMap();
+    public void LoadMap() => gutiMap = board.GetGutiMap();
 
-    public void MoveGuti(Move move, GutiType gutiType)
-    {
-        if (move == null) return;
-        gutiMap.CaptureGuti(move.sourceAddress, move.targetAddress);
-    }
-    
+    public void UnloadMap() => gutiMap = null;
+
+    public void MoveGuti(Move move) => gutiMap.CaptureGuti(move.sourceAddress, move.targetAddress);
+
     public int PredictMoveValue(Move move, GutiType playerGutiType ,GutiType gutiType)
     {
         var captureScore = playerGutiType == gutiType ? minMaxReward : minMaxPenalty;
@@ -49,17 +46,21 @@ public class Simulator : MonoBehaviour
         return list;
     }
 
-    public List<List<float>> GetAllBoardStatesAsList(GutiType gutiType, List<Move> moveList)
+    // Returns all future board states upto depth of 1 as Lists of floats
+    public List<List<float>> GetAllFutureBoardStatesAsList(GutiType gutiType, List<Move> moveList)
     {
         var gutiTypeTree = new List<List<float>>();
         for (var index = 0; index < moveList.Count; index++)
         {
             var move = moveList[index];
-            MoveGuti(move, gutiType);
+            MoveGuti(move);
             gutiTypeTree.Add(gutiMap.GetBoardStateAsList());
             ReverseMove(gutiType, move);
         }
         return gutiTypeTree;
     }
+    
+    public List<float> GetCurrentBoardStateAsList() => gutiMap.GetBoardStateAsList();
 
+    public Move GetMoveFromIndexes(int sourceIndex, int targetIndex) => new Move(board.GetAddressFromIndex(sourceIndex), board.GetAddressFromIndex(targetIndex));
 }

@@ -20,8 +20,9 @@ public class MinMaxAi
 
     public Move MinMax(GutiType rootGutiType, int explorationDepth, ref int projectedScore)
     {
-        _simulator.MakeReady();
+        _simulator.LoadMap();
         return MinMax(rootGutiType, rootGutiType, explorationDepth, ref projectedScore);
+        _simulator.UnloadMap();
     }
 
     private Move MinMax(GutiType rootGutiType, GutiType gutiType, int explorationDepth, ref int projectedScore)
@@ -37,7 +38,7 @@ public class MinMaxAi
             var tempExplorationDepth = explorationDepth;
             var score = 0;
             score += _simulator.PredictMoveValue(move, rootGutiType, gutiType);
-            _simulator.MoveGuti(move, gutiType);
+            _simulator.MoveGuti(move);
             if (RuleBook.CanContinueTurn(move))
             {
                 var tempScore = 0;

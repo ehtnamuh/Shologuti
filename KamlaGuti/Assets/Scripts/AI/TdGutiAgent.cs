@@ -16,13 +16,13 @@ public class TdGutiAgent : GutiAgent
     {
         // if (!Academy.Instance.IsCommunicatorOn)
         //     this.MaxStep = 0;
-        this.MaxStep = 0; // This is to prevent the agent being reset by MlAgents Academy 
+        MaxStep = 0; // This is to prevent the agent being reset by MlAgents Academy 
         Init();
     }
 
     private void Awake() => Init();
 
-    protected override void Init()
+    private void Init()
     {
         _actionIndex = gutiType == GutiType.GreenGuti ? 0 : 1;
         _iterator = -1;
@@ -35,11 +35,12 @@ public class TdGutiAgent : GutiAgent
 
     public override void MakeMove()
     {
-        var simulator = GameManager.instance.simulator;
-        simulator.MakeReady();
+        var simulator = gameManager.simulator;
+        simulator.LoadMap();
         _moveList = simulator.ExtractMoves(gutiType);
-        var gutiTypeTree = simulator.GetAllBoardStatesAsList(gutiType, _moveList);
+        var gutiTypeTree = simulator.GetAllFutureBoardStatesAsList(gutiType, _moveList);
         PopulateGutiTypeTree(gutiTypeTree);
+        simulator.UnloadMap();
         RequestDecision();
     }
 
@@ -48,7 +49,7 @@ public class TdGutiAgent : GutiAgent
         _gutiTypeTree = gutiTypeTree;
         if (_gutiTypeTree.Count > 0) _iterator = 0;
         else
-            GameManager.instance.DeclareWinner();
+            gameManager.DeclareWinner();
     }
     
     public override void CollectObservations(VectorSensor sensor)
@@ -79,27 +80,20 @@ public class TdGutiAgent : GutiAgent
         }
         else
         {
-            if (_iterator < 0)
-            {
-                GameManager.instance.DeclareWinner(); // If no possible moves, (indicating end of game) iterator will be unset    
-                return;
-            }
-            // If only one move was available, maxIndex will be unset
-            if (_maxIndex == -1) _maxIndex = 0;
-            var move = AgentMove(_maxIndex);
-            var reward =  GameManager.instance.scoreboard.GetScoreDifference(gutiType) / 16.0f;
+            UpdateMaxState(vectorAction[_actionIndex]);
+            var move = AgentMove(_moveList[_maxIndex]);
+            var reward =  gameManager.scoreboard.GetScoreDifference(gutiType) / 16.0f;
             SetReward(reward);
-            GameManager.instance.EndStep(gutiType, move);
-            GameManager.instance.UnlockStep();
+            gameManager.EndStep(gutiType, move);
             Init();
+            gameManager.UnlockStep();
         }
     }
 
-    protected override Move AgentMove(int moveIndex)
+    protected override Move AgentMove(Move move)
     {
-        var move = _moveList[moveIndex];
-        GameManager.instance.GetBoard().MoveGuti(move);
-        GameManager.instance.GetPlayer(gutiType).UpdateScore(move);
+        gameManager.GetBoard().MoveGuti(move);
+        gameManager.GetPlayer(gutiType).UpdateScore(move);
         return move;
     }
 

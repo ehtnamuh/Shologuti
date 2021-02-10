@@ -2,7 +2,8 @@
 
 public class InputHandler : MonoBehaviour
 {
-    void Update()
+    [SerializeField] private GameManager gameManager;
+    private void Update()
     {
         if (!Input.GetMouseButtonDown(0)) return;
         if (Camera.main == null) return;
@@ -10,9 +11,9 @@ public class InputHandler : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(worldPosition, new Vector3(0, 0, 1), 1000);
         if (hit)
         {
-            GameManager.instance.ProcessHumanInput(hit.collider.gameObject);
+            gameManager.ProcessHumanInput(hit.collider.gameObject);
         }
         else
-            GameManager.instance.ClearHighlights();
+            gameManager.ClearHighlights();
     }
 }

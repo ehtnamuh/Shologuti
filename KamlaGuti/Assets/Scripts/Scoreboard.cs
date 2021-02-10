@@ -13,9 +13,9 @@ public class Scoreboard : MonoBehaviour
     public void UpdateScoreboard(GutiType gutiType, string details)
     {
         if (gutiType == GutiType.GreenGuti)
-            greenScore.text = "Player 2\n" + details;
+            greenScore.text = "Shobuj\n" + details;
         else
-            redScore.text = "Player 1\n"+ details;
+            redScore.text = "Lal\n"+ details;
     }
     
     public void UpdateScoreboard(BasePlayer basePlayer) => UpdateScoreboard(basePlayer.GetGutiType(), basePlayer.ToString());

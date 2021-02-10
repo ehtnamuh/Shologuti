@@ -1,11 +1,10 @@
-﻿
-using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
     [SerializeField] private Button pauseBtn;
+    [SerializeField] private GameManager gameManager;
 
     private Text _pauseBtnText;
 
@@ -22,17 +21,17 @@ public class UIManager : MonoBehaviour
 
     public void Step()
     {
-        if (GameManager.instance.gameStateManager.GameState != GameState.Paused && GameManager.instance.gameStateManager.GameState != GameState.InPlay)
+        if (gameManager.gameStateManager.GameState != GameState.Paused && gameManager.gameStateManager.GameState != GameState.InPlay)
         {
             Debug.Log("Game Ended. Hit Restart");
             return;
         }
-        GameManager.instance.NextStep();
+        gameManager.NextStep();
     }
 
     public void Pause()
     {
-        var gameStateManager = GameManager.instance.gameStateManager;
+        var gameStateManager = gameManager.gameStateManager;
         switch (gameStateManager.GameState)
         {
             case GameState.InPlay:
@@ -52,8 +51,8 @@ public class UIManager : MonoBehaviour
 
     public void Restart()
     {
-        GameManager.instance.DeclareWinner();
-        GameManager.instance.Restart();  
+        gameManager.DeclareWinner();
+        gameManager.Restart();  
     } 
         
     
