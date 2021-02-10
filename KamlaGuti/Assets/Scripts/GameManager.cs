@@ -12,7 +12,7 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(Scoreboard))]
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance;
+    // public static GameManager instance;
     
     [SerializeField] private float timeScale = 5.0f;
     [SerializeField] private Board.Board board;
@@ -33,20 +33,20 @@ public class GameManager : MonoBehaviour
 
     #region StartRestart
 
-    public void Awake() => MakeSingleton();
+    // public void Awake() => MakeSingleton();
 
-    private void MakeSingleton()
-    {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(instance.gameObject);
-        }
-        else
-        {
-            Destroy(instance.gameObject);
-        }
-    }
+    // private void MakeSingleton()
+    // {
+    //     if (instance == null)
+    //     {
+    //         instance = this;
+    //         DontDestroyOnLoad(instance.gameObject);
+    //     }
+    //     else
+    //     {
+    //         Destroy(instance.gameObject);
+    //     }
+    // }
 
     private void Start()
     {
@@ -88,9 +88,9 @@ public class GameManager : MonoBehaviour
             _playerMap = new Dictionary<GutiType, BasePlayer>();
             // _playerMap[GutiType.GreenGuti] = new PlayerHuman(GutiType.GreenGuti, PlayerType.Human);
             // _playerMap[GutiType.RedGuti] = new PlayerHuman(GutiType.RedGuti, PlayerType.Human);
-            _playerMap[GutiType.RedGuti] = new PlayerMinMax(GutiType.RedGuti, PlayerType.AI, new MinMaxAi(simulator), 1);
+            _playerMap[GutiType.RedGuti] = new PlayerMinMax(GutiType.RedGuti, PlayerType.AI, this, new MinMaxAi(simulator), 1);
             // _playerMap[GutiType.GreenGuti] = new PlayerMinMax(GutiType.GreenGuti, PlayerType.AI, new MinMaxAi(simulator), 3);
-            _playerMap[GutiType.GreenGuti] = new PlayerRla(GutiType.GreenGuti, PlayerType.RLA, agent);
+            _playerMap[GutiType.GreenGuti] = new PlayerRla(GutiType.GreenGuti, PlayerType.RLA, this, agent);
         }
         else
         {

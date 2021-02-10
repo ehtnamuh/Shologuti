@@ -662,7 +662,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1408655400978663372, guid: 930a4bf46707aef4485d74f6c6fc1ca2, type: 3}
       propertyPath: m_RootOrder
-      value: 7
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 1408655400978663372, guid: 930a4bf46707aef4485d74f6c6fc1ca2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -676,6 +676,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1408655400978663373, guid: 930a4bf46707aef4485d74f6c6fc1ca2, type: 3}
+      propertyPath: gameManager
+      value: 
+      objectReference: {fileID: 424579931}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 930a4bf46707aef4485d74f6c6fc1ca2, type: 3}
 --- !u!4 &353799083 stripped
@@ -921,6 +925,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40393c2b687fe5b4ebbd01f8a3ed1a84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameManager: {fileID: 424579931}
 --- !u!1 &874339876
 GameObject:
   m_ObjectHideFlags: 0
@@ -1681,6 +1686,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pauseBtn: {fileID: 295976768}
+  gameManager: {fileID: 424579931}
 --- !u!1 &1900709164
 GameObject:
   m_ObjectHideFlags: 0

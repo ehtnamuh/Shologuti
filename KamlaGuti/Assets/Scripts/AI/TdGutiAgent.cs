@@ -16,13 +16,13 @@ public class TdGutiAgent : GutiAgent
     {
         // if (!Academy.Instance.IsCommunicatorOn)
         //     this.MaxStep = 0;
-        this.MaxStep = 0; // This is to prevent the agent being reset by MlAgents Academy 
+        MaxStep = 0; // This is to prevent the agent being reset by MlAgents Academy 
         Init();
     }
 
     private void Awake() => Init();
 
-    protected override void Init()
+    private void Init()
     {
         _actionIndex = gutiType == GutiType.GreenGuti ? 0 : 1;
         _iterator = -1;
@@ -35,7 +35,7 @@ public class TdGutiAgent : GutiAgent
 
     public override void MakeMove()
     {
-        var simulator = GameManager.instance.simulator;
+        var simulator = gameManager.simulator;
         simulator.LoadMap();
         _moveList = simulator.ExtractMoves(gutiType);
         var gutiTypeTree = simulator.GetAllFutureBoardStatesAsList(gutiType, _moveList);
@@ -49,7 +49,7 @@ public class TdGutiAgent : GutiAgent
         _gutiTypeTree = gutiTypeTree;
         if (_gutiTypeTree.Count > 0) _iterator = 0;
         else
-            GameManager.instance.DeclareWinner();
+            gameManager.DeclareWinner();
     }
     
     public override void CollectObservations(VectorSensor sensor)
@@ -82,18 +82,18 @@ public class TdGutiAgent : GutiAgent
         {
             UpdateMaxState(vectorAction[_actionIndex]);
             var move = AgentMove(_moveList[_maxIndex]);
-            var reward =  GameManager.instance.scoreboard.GetScoreDifference(gutiType) / 16.0f;
+            var reward =  gameManager.scoreboard.GetScoreDifference(gutiType) / 16.0f;
             SetReward(reward);
-            GameManager.instance.EndStep(gutiType, move);
+            gameManager.EndStep(gutiType, move);
             Init();
-            GameManager.instance.UnlockStep();
+            gameManager.UnlockStep();
         }
     }
 
     protected override Move AgentMove(Move move)
     {
-        GameManager.instance.GetBoard().MoveGuti(move);
-        GameManager.instance.GetPlayer(gutiType).UpdateScore(move);
+        gameManager.GetBoard().MoveGuti(move);
+        gameManager.GetPlayer(gutiType).UpdateScore(move);
         return move;
     }
 

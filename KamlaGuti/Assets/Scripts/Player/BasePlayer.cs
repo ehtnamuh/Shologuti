@@ -1,4 +1,5 @@
 ﻿using Board.Guti;
+using UnityEngine;
 
 namespace Player
 {
@@ -13,11 +14,12 @@ namespace Player
     public abstract class BasePlayer
     {
         protected GutiType gutiType;
+        private GameManager _gameManager;
 
         public int CapturedGutiCount { get; set; }
         public PlayerType PlayerType { get; protected set; }
-    
-        protected BasePlayer() {}
+
+        protected BasePlayer(GameManager gameManager) => _gameManager = gameManager;
 
         public abstract void ReInit();
 
@@ -30,7 +32,7 @@ namespace Player
             if (RuleBook.CanCaptureGuti(move)) CapturedGutiCount++;
         }
 
-        public float GetScore() => CapturedGutiCount * GameManager.instance.scoreboard.ScoreUnit;
+        public float GetScore() => CapturedGutiCount * _gameManager.scoreboard.ScoreUnit;
 
     }
 }

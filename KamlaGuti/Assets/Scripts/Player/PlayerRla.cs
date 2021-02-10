@@ -6,7 +6,7 @@ namespace Player
     {
         private readonly GutiAgent _agent;
         private int _explorationDepth;
-        public PlayerRla(GutiType gutiType, PlayerType tPlayerType, GutiAgent agent, int explorationDepth = -1)
+        public PlayerRla(GutiType gutiType, PlayerType tPlayerType, GameManager gameManager, GutiAgent agent, int explorationDepth = -1) : base(gameManager)
         {
             _explorationDepth = explorationDepth<=0? 1: explorationDepth;
             this.gutiType = gutiType;
@@ -26,6 +26,6 @@ namespace Player
 
         public void ReInit(int expDepth) => _explorationDepth = expDepth<=0? 1: expDepth;
     
-        public override string ToString() => $"Type: {PlayerType}\nDepth: {_explorationDepth}\nColor: {gutiType}\nScore: {CapturedGutiCount}";
+        public override string ToString() => $"Type: {PlayerType}\nDetail:{_agent.name} \nDepth: {_explorationDepth}\nColor: {gutiType}\nScore: {CapturedGutiCount}";
     }
 }
