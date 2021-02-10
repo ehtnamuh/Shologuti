@@ -36,10 +36,11 @@ public class TdGutiAgent : GutiAgent
     public override void MakeMove()
     {
         var simulator = GameManager.instance.simulator;
-        simulator.MakeReady();
+        simulator.LoadMap();
         _moveList = simulator.ExtractMoves(gutiType);
-        var gutiTypeTree = simulator.GetAllBoardStatesAsList(gutiType, _moveList);
+        var gutiTypeTree = simulator.GetAllFutureBoardStatesAsList(gutiType, _moveList);
         PopulateGutiTypeTree(gutiTypeTree);
+        simulator.UnloadMap();
         RequestDecision();
     }
 
@@ -79,19 +80,13 @@ public class TdGutiAgent : GutiAgent
         }
         else
         {
-            if (_iterator < 0)
-            {
-                GameManager.instance.DeclareWinner(); // If no possible moves, (indicating end of game) iterator will be unset    
-                return;
-            }
-            // If only one move was available, maxIndex will be unset
-            if (_maxIndex == -1) _maxIndex = 0;
+            UpdateMaxState(vectorAction[_actionIndex]);
             var move = AgentMove(_maxIndex);
             var reward =  GameManager.instance.scoreboard.GetScoreDifference(gutiType) / 16.0f;
             SetReward(reward);
             GameManager.instance.EndStep(gutiType, move);
-            GameManager.instance.UnlockStep();
             Init();
+            GameManager.instance.UnlockStep();
         }
     }
 

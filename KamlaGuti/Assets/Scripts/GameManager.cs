@@ -123,7 +123,6 @@ public class GameManager : MonoBehaviour
         LockStep();
         // Checking Maximum Step per Episode
         if(_currentStepCount > maxStepCount){ DeclareWinner(); return;}
-        _currentStepCount++;
         // Taking appropriate Actions According to Player type
         var player = _playerMap[_currentTurnGutiType];
         var move = player.GetMove();
@@ -135,6 +134,7 @@ public class GameManager : MonoBehaviour
 
     public void EndStep(GutiType gutiType, Move move)
     {
+        _currentStepCount++;
         var player = _playerMap[gutiType];
         var canContinueTurn = RuleBook.CanContinueTurn(move);
         scoreboard.UpdateScoreboard(player);
