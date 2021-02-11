@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
 {
     // public static GameManager instance;
 
-    [SerializeField] private GameManagerParams _gameManagerParams;
+    [SerializeField] private GameManagerParams gameManagerParams;
     [SerializeField] private Board.Board board;
     [SerializeField] public Simulator simulator;
     [SerializeField] public GameStateManager gameStateManager;
@@ -51,7 +51,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         LockStep();
-        _gameManagerParams.maxStepCount = _gameManagerParams.maxStepCount == 0 ? 100 : _gameManagerParams.maxStepCount;
+        gameManagerParams.maxStepCount = gameManagerParams.maxStepCount == 0 ? 100 : gameManagerParams.maxStepCount;
         Init();
         gameStateManager.SetGameState(GameState.InPlay); // Using SetGameState() can cause failure if UIManager fails to load in time
         UnlockStep();
@@ -78,7 +78,7 @@ public class GameManager : MonoBehaviour
         uiManager.Init();
         InitPlayers();
         InitScoreboard();
-        Time.timeScale = _gameManagerParams.timeScale;
+        Time.timeScale = gameManagerParams.timeScale;
     }
     
     private void InitPlayers()
@@ -110,7 +110,7 @@ public class GameManager : MonoBehaviour
 
     #region MainGameLoop
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (gameStateManager.GameState != GameState.InPlay)
             return;
@@ -122,7 +122,7 @@ public class GameManager : MonoBehaviour
         if(!_stepEnded) return;
         LockStep();
         // Checking Maximum Step per Episode
-        if(_currentStepCount > _gameManagerParams.maxStepCount){ DeclareWinner(); return;}
+        if(_currentStepCount > gameManagerParams.maxStepCount){ DeclareWinner(); return;}
         // Taking appropriate Actions According to Player type
         var player = _playerMap[_currentTurnGutiType];
         var move = player.GetMove();
@@ -136,7 +136,7 @@ public class GameManager : MonoBehaviour
     {
         _currentStepCount++;
         var player = _playerMap[gutiType];
-        var canContinueTurn = RuleBook.CanContinueTurn(move);
+        var canContinueTurn = RuleBook.CanContinueTurn(move, board.GetGutiMapRef());
         scoreboard.UpdateScoreboard(player);
         if(!canContinueTurn) ChangeTurn();     
         if(player.CapturedGutiCount >= 16) DeclareWinner();
@@ -157,7 +157,7 @@ public class GameManager : MonoBehaviour
             agent.EndEpisode();
         else
             return;
-        if (_gameManagerParams.autoPlay) Restart();
+        if (gameManagerParams.autoPlay) Restart();
     }
 
     private void LockStep() => _stepEnded = false;

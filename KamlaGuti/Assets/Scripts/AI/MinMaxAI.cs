@@ -9,9 +9,9 @@ public class MinMaxAi
     private readonly Simulator _simulator;
     private readonly int _captureUnitScore;
     private readonly int _loseUnitScore;
-    private GutiMap _gutiMap;
+    // private GutiMap _gutiMap;
     
-    public MinMaxAi( Simulator simulator,int captureUnitScore = 1, int loseUnitScore = 1)
+    public MinMaxAi( Simulator simulator, int captureUnitScore = 1, int loseUnitScore = 1)
     {
         _simulator = simulator;
         _loseUnitScore = loseUnitScore == 0? 1: Math.Abs(loseUnitScore) ;
@@ -38,7 +38,7 @@ public class MinMaxAi
             var score = 0;
             score += _simulator.PredictMoveValue(move, rootGutiType, gutiType);
             _simulator.MoveGuti(move);
-            if (RuleBook.CanContinueTurn(move))
+            if (RuleBook.CanContinueTurn(move, _simulator.gutiMap))
             {
                 var tempScore = 0;
                 MinMax(gutiType, gutiType, --tempExplorationDepth, ref tempScore);

@@ -1,22 +1,19 @@
-using System;
 using Board.Guti;
 using Board.View;
-using Unity.Barracuda;
 using UnityEngine;
 
 namespace Board
 {
 	public class Board : MonoBehaviour
 	{
-		public AddressIndexTranslator addressIndexTranslator;
-		public BoardGui boardGui;
+		[SerializeField] public BoardGui boardGui;
 		private GutiMap _gutiMap; // logical state of the board
 		private GutiNode[] _gutiNodesArray;
+		public AddressIndexTranslator addressIndexTranslator;
 
 		private void Awake()
 		{
 			_gutiMap = new GutiMap();
-			boardGui = gameObject.GetComponent<BoardGui>();
 			boardGui.Init();
 			LoadFromJson();
 			Init();
@@ -35,8 +32,8 @@ namespace Board
 				if (gutiNode.gutiType == GutiType.NoGuti) continue;
 				boardGui.CreateGutiGo(gutiNode);
 			}
+			// Debug.Log(boardGui.gameObject.name + "  " + boardGui._gutiGoMap.Count);
 			addressIndexTranslator = new AddressIndexTranslator(_gutiNodesArray);
-			RuleBook.Init(_gutiMap);
 		}
 
 		private void LoadFromJson()
@@ -62,7 +59,7 @@ namespace Board
 			var targetAddress = move.targetAddress;
 			// updating logical map
 			_gutiMap.CaptureGuti(sourceAddress, targetAddress);
-			if (RuleBook.CanCaptureGuti(move))
+			if (RuleBook.CanCaptureGuti(move, _gutiMap))
 			{
 				var capturedGutiAddress = _gutiMap.GetCapturedGutiAddress(sourceAddress, targetAddress);
 				boardGui.ClearCapturedGuti(capturedGutiAddress);
@@ -81,7 +78,9 @@ namespace Board
 		}
 	
 		// returns COPY of the Logical Map of the Game
-		public GutiMap GetGutiMap() => new GutiMap(_gutiMap);
+		public GutiMap GetGutiMapCopy() => new GutiMap(_gutiMap);
+		public GutiMap GetGutiMapRef() => _gutiMap;
+		
 		
 	}
 }

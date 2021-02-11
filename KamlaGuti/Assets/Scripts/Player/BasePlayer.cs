@@ -29,7 +29,7 @@ namespace Player
 
         public void UpdateScore(Move move)
         {
-            if (RuleBook.CanCaptureGuti(move)) CapturedGutiCount++;
+            if (RuleBook.CanCaptureGuti(move, _gameManager.GetBoard().GetGutiMapRef())) CapturedGutiCount++;
         }
 
         public float GetScore() => CapturedGutiCount * _gameManager.scoreboard.ScoreUnit;
