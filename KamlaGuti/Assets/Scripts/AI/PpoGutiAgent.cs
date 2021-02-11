@@ -28,14 +28,14 @@ public class PpoGutiAgent : GutiAgent
         if (RuleBook.IsMoveValid(move, gutiType, gameManager.simulator.gutiMap))
         {
             AgentMove(move);
-            var reward = (gameManager.scoreboard.GetScoreDifference(gutiType) / 16.0f);
+            var reward = gameManager.scoreboard.GetScoreDifference(gutiType);
             SetReward(reward);
             gameManager.EndStep(gutiType, move);
             gameManager.UnlockStep();
         }
         else
         {
-            SetReward(-1);
+            SetReward(-16);
             RequestDecision();
         }
     }

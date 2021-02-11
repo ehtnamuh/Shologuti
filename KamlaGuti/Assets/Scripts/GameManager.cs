@@ -110,7 +110,7 @@ public class GameManager : MonoBehaviour
 
     #region MainGameLoop
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (gameStateManager.GameState != GameState.InPlay)
             return;

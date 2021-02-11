@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Board.Guti;
 using UnityEngine;
@@ -8,10 +9,10 @@ namespace Board.View
     public class BoardGui : MonoBehaviour
     {
         [SerializeField] private GameObject gutiPrefab;
-        private Dictionary<Address, Guti> _gutiGoMap;
+        public Dictionary<Address, Guti> _gutiGoMap;
         private List<GameObject> _highlightedNodes;
 
-        private void Awake() => Init();
+        // private void Awake() => Init();
 
         public void Init()
         {
@@ -23,7 +24,6 @@ namespace Board.View
         {
             Destroy(_gutiGoMap[capturedGutiAddress].gameObject);
             _gutiGoMap.Remove(capturedGutiAddress);
-
         }
 
         public void ClearHighlightedNodes()
@@ -69,18 +69,25 @@ namespace Board.View
             var guti = gutiGo.GetComponent<Guti>();
             guti.SetAddress(gutiNode.Address);
             guti.SetGutiType(gutiNode.gutiType);
-            _gutiGoMap[guti.address] = guti;
+            _gutiGoMap[guti.address] = guti; ;
         }
 	
         public void UpdateGutiGo(Move move)
         {
             var sourceAddress = move.sourceAddress;
             var targetAddress = move.targetAddress;
-            _gutiGoMap[sourceAddress].SetAddress(targetAddress);
-            _gutiGoMap[targetAddress] = _gutiGoMap[sourceAddress];
-            _gutiGoMap.Remove(sourceAddress);
+            try
+            {
+                _gutiGoMap[sourceAddress].SetAddress(targetAddress);
+                _gutiGoMap[targetAddress] = _gutiGoMap[sourceAddress];
+                _gutiGoMap.Remove(sourceAddress);
+            }
+            catch (Exception e)
+            {
+                // Debug.Log(gameObject.name + "  " + _gutiGoMap.Count);
+                throw;
+            }
         }
-	
 
     }
 }
