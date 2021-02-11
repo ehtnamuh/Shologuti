@@ -1,12 +1,14 @@
 using System;
 using Board.Guti;
 using Board.View;
+using Unity.Barracuda;
 using UnityEngine;
 
 namespace Board
 {
 	public class Board : MonoBehaviour
 	{
+		public AddressIndexTranslator addressIndexTranslator;
 		public BoardGui boardGui;
 		private GutiMap _gutiMap; // logical state of the board
 		private GutiNode[] _gutiNodesArray;
@@ -33,6 +35,7 @@ namespace Board
 				if (gutiNode.gutiType == GutiType.NoGuti) continue;
 				boardGui.CreateGutiGo(gutiNode);
 			}
+			addressIndexTranslator = new AddressIndexTranslator(_gutiNodesArray);
 			RuleBook.Init(_gutiMap);
 		}
 
@@ -79,7 +82,6 @@ namespace Board
 	
 		// returns COPY of the Logical Map of the Game
 		public GutiMap GetGutiMap() => new GutiMap(_gutiMap);
-
-		public Address GetAddressFromIndex(int addressIndex) => _gutiNodesArray[addressIndex].Address;
+		
 	}
 }

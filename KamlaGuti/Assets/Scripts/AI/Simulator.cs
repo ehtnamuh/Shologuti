@@ -10,12 +10,13 @@ public class Simulator : MonoBehaviour
     public GutiMap gutiMap;
 
 
-    private void Start() => gutiMap = board.GetGutiMap();
+    private void Start() => LoadMap();
 
     public void LoadMap() => gutiMap = board.GetGutiMap();
 
     public void UnloadMap() => gutiMap = null;
-
+    
+    
     public void MoveGuti(Move move) => gutiMap.CaptureGuti(move.sourceAddress, move.targetAddress);
 
     public int PredictMoveValue(Move move, GutiType playerGutiType ,GutiType gutiType)
@@ -60,7 +61,22 @@ public class Simulator : MonoBehaviour
         return gutiTypeTree;
     }
     
-    public List<float> GetCurrentBoardStateAsList() => gutiMap.GetBoardStateAsList();
+    public IEnumerable<float> GetCurrentBoardStateAsList() => gutiMap.GetBoardStateAsList();
 
-    public Move GetMoveFromIndexes(int sourceIndex, int targetIndex) => new Move(board.GetAddressFromIndex(sourceIndex), board.GetAddressFromIndex(targetIndex));
+    // first column = source Address, second column = target Address
+    public List<List<int>> GetMoveIndexes(GutiType gutiType)
+    {
+        var moves = ExtractMoves(gutiType);
+        var moveIndices = new List<List<int>>(2){new List<int>(), new List<int>()};
+        foreach (var move in moves)
+        {
+            moveIndices[0].Add(board.addressIndexTranslator.GetIndexFromAddress(move.sourceAddress));
+            moveIndices[1].Add(board.addressIndexTranslator.GetIndexFromAddress(move.targetAddress));
+        }
+        return moveIndices;
+    }
+    
+    public Move GetMoveFromIndexes(int sourceIndex, int targetIndex) => new Move(
+        board.addressIndexTranslator.GetAddressFromIndex(sourceIndex),
+        board.addressIndexTranslator.GetAddressFromIndex(targetIndex));
 }
