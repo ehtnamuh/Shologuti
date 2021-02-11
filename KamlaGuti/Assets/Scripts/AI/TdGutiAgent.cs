@@ -40,7 +40,7 @@ public class TdGutiAgent : GutiAgent
         _moveList = simulator.ExtractMoves(gutiType);
         var gutiTypeTree = simulator.GetAllFutureBoardStatesAsList(gutiType, _moveList);
         PopulateGutiTypeTree(gutiTypeTree);
-        simulator.UnloadMap();
+        // simulator.UnloadMap();
         RequestDecision();
     }
 

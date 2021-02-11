@@ -14,7 +14,7 @@ public class Simulator : MonoBehaviour
 
     public void LoadMap() => gutiMap = board.GetGutiMap();
 
-    public void UnloadMap() => gutiMap = null;
+    // public void UnloadMap() => gutiMap = null;
     
     
     public void MoveGuti(Move move) => gutiMap.CaptureGuti(move.sourceAddress, move.targetAddress);
