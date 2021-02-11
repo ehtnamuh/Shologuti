@@ -25,18 +25,17 @@ public class PpoGutiAgent : GutiAgent
         var source = (int) vectorAction[0];
         var target = (int) vectorAction[1];
         var move = gameManager.simulator.GetMoveFromIndexes(source, target);
-        if (RuleBook.IsMoveValid(move, gutiType))
+        if (RuleBook.IsMoveValid(move, gutiType, gameManager.simulator.gutiMap))
         {
             AgentMove(move);
-            var reward = gameManager.scoreboard.GetScoreDifference(gutiType) / 16.0f;
+            var reward = (gameManager.scoreboard.GetScoreDifference(gutiType) / 16.0f);
             SetReward(reward);
             gameManager.EndStep(gutiType, move);
-            // gameManager.simulator.UnloadMap();
             gameManager.UnlockStep();
         }
         else
         {
-            SetReward(-1000);
+            SetReward(-1);
             RequestDecision();
         }
     }

@@ -683,7 +683,7 @@ PrefabInstance:
     - target: {fileID: 1408655400978663374, guid: 930a4bf46707aef4485d74f6c6fc1ca2, type: 3}
       propertyPath: m_Model
       value: 
-      objectReference: {fileID: 5022602860645237092, guid: f89326d193d17f346ac2a619011375af, type: 3}
+      objectReference: {fileID: 0}
     - target: {fileID: 1408655400978663374, guid: 930a4bf46707aef4485d74f6c6fc1ca2, type: 3}
       propertyPath: m_BehaviorType
       value: 0
@@ -881,15 +881,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fff0b724c52210f44821b621e698ca1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeScale: 20
+  _gameManagerParams: {fileID: 11400000, guid: 37637b1f08bd67c43b0dd28e8fc39b05, type: 2}
   board: {fileID: 23366517}
   simulator: {fileID: 38038610}
   gameStateManager: {fileID: 331810967}
   scoreboard: {fileID: 1287124650}
   uiManager: {fileID: 1675332991}
   agent: {fileID: 353799084}
-  maxStepCount: 200
-  autoPlay: 1
 --- !u!1 &528671297
 GameObject:
   m_ObjectHideFlags: 0

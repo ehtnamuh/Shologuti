@@ -36,7 +36,6 @@ namespace Board
 				boardGui.CreateGutiGo(gutiNode);
 			}
 			addressIndexTranslator = new AddressIndexTranslator(_gutiNodesArray);
-			RuleBook.Init(_gutiMap);
 		}
 
 		private void LoadFromJson()
@@ -62,7 +61,7 @@ namespace Board
 			var targetAddress = move.targetAddress;
 			// updating logical map
 			_gutiMap.CaptureGuti(sourceAddress, targetAddress);
-			if (RuleBook.CanCaptureGuti(move))
+			if (RuleBook.CanCaptureGuti(move, _gutiMap))
 			{
 				var capturedGutiAddress = _gutiMap.GetCapturedGutiAddress(sourceAddress, targetAddress);
 				boardGui.ClearCapturedGuti(capturedGutiAddress);
@@ -81,7 +80,9 @@ namespace Board
 		}
 	
 		// returns COPY of the Logical Map of the Game
-		public GutiMap GetGutiMap() => new GutiMap(_gutiMap);
+		public GutiMap GetGutiMapCopy() => new GutiMap(_gutiMap);
+		public GutiMap GetGutiMapRef() => _gutiMap;
+		
 		
 	}
 }

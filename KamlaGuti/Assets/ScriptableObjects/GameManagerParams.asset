@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: GameManagerParams
   m_EditorClassIdentifier: 
   timeScale: 5
-  maxStepCount: 50
+  maxStepCount: 100
   autoPlay: 1

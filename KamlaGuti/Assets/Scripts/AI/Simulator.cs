@@ -12,7 +12,7 @@ public class Simulator : MonoBehaviour
 
     private void Start() => LoadMap();
 
-    public void LoadMap() => gutiMap = board.GetGutiMap();
+    public void LoadMap() => gutiMap = board.GetGutiMapCopy();
 
     // public void UnloadMap() => gutiMap = null;
     
