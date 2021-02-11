@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Board.Guti;
 using Board.View;
 using Player;
+using ScriptableObjects;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -13,8 +14,8 @@ using Random = UnityEngine.Random;
 public class GameManager : MonoBehaviour
 {
     // public static GameManager instance;
-    
-    [SerializeField] private float timeScale = 5.0f;
+
+    [SerializeField] private GameManagerParams _gameManagerParams;
     [SerializeField] private Board.Board board;
     [SerializeField] public Simulator simulator;
     [SerializeField] public GameStateManager gameStateManager;
@@ -22,8 +23,7 @@ public class GameManager : MonoBehaviour
     public UIManager uiManager;
     public GutiAgent agent;
     
-    public int maxStepCount;
-    public bool autoPlay;
+
 
     private int _currentStepCount = 0;
     private GutiType _currentTurnGutiType;
@@ -51,7 +51,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         LockStep();
-        maxStepCount = maxStepCount == 0 ? 200 : maxStepCount;
+        _gameManagerParams.maxStepCount = _gameManagerParams.maxStepCount == 0 ? 100 : _gameManagerParams.maxStepCount;
         Init();
         gameStateManager.SetGameState(GameState.InPlay); // Using SetGameState() can cause failure if UIManager fails to load in time
         UnlockStep();
@@ -78,7 +78,7 @@ public class GameManager : MonoBehaviour
         uiManager.Init();
         InitPlayers();
         InitScoreboard();
-        Time.timeScale = timeScale;
+        Time.timeScale = _gameManagerParams.timeScale;
     }
     
     private void InitPlayers()
@@ -122,7 +122,7 @@ public class GameManager : MonoBehaviour
         if(!_stepEnded) return;
         LockStep();
         // Checking Maximum Step per Episode
-        if(_currentStepCount > maxStepCount){ DeclareWinner(); return;}
+        if(_currentStepCount > _gameManagerParams.maxStepCount){ DeclareWinner(); return;}
         // Taking appropriate Actions According to Player type
         var player = _playerMap[_currentTurnGutiType];
         var move = player.GetMove();
@@ -157,7 +157,7 @@ public class GameManager : MonoBehaviour
             agent.EndEpisode();
         else
             return;
-        if (autoPlay) Restart();
+        if (_gameManagerParams.autoPlay) Restart();
     }
 
     private void LockStep() => _stepEnded = false;

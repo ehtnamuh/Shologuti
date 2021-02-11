@@ -31,7 +31,7 @@ public class PpoGutiAgent : GutiAgent
             var reward = gameManager.scoreboard.GetScoreDifference(gutiType) / 16.0f;
             SetReward(reward);
             gameManager.EndStep(gutiType, move);
-            gameManager.simulator.UnloadMap();
+            // gameManager.simulator.UnloadMap();
             gameManager.UnlockStep();
         }
         else
