@@ -4,7 +4,7 @@ using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Random = UnityEngine.Random;
 
-public class PpoGutiAgent : GutiAgent
+public class PPOGutiAgent : GutiAgent
 {
     public override void Initialize() => MaxStep = 0;
 

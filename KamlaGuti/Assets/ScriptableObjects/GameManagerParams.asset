@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 796c176f62cd4b208fa633643119fc7f, type: 3}
   m_Name: GameManagerParams
   m_EditorClassIdentifier: 
-  timeScale: 1
-  maxStepCount: 200
+  timeScale: 10
+  maxStepCount: 500
   autoPlay: 0

@@ -3,7 +3,7 @@ using Board.Guti;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
 
-public class TdGutiAgent : GutiAgent
+public class TDGutiAgent : GutiAgent
 {
     private List<List<float>> _gutiTypeTree;
     private int _iterator;
