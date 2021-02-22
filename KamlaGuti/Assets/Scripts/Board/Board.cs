@@ -81,6 +81,5 @@ namespace Board
 		public GutiMap GetGutiMapCopy() => new GutiMap(_gutiMap);
 		public GutiMap GetGutiMapRef() => _gutiMap;
 		
-		
 	}
 }

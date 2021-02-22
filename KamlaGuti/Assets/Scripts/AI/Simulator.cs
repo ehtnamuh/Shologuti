@@ -51,6 +51,7 @@ public class Simulator : MonoBehaviour
     public List<List<float>> GetAllFutureBoardStatesAsList(GutiType gutiType, List<Move> moveList)
     {
         var gutiTypeTree = new List<List<float>>();
+        gutiTypeTree.Add(gutiMap.GetBoardStateAsList());
         for (var index = 0; index < moveList.Count; index++)
         {
             var move = moveList[index];
