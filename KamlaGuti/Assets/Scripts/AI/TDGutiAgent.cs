@@ -5,10 +5,17 @@ using UnityEngine;
 
 public class TDGutiAgent : GutiAgent
 {
+    private enum StepStage
+    {
+        StepBegin = 0,
+        StepRunning = -1,
+        StepEnd = -2
+    }
+    
     private List<List<float>> _gutiTypeTree;
     private int _iterator;
     private int _maxIndex;
-    private float _maxValue;
+    private float _maxObsValue;
     private int _actionIndex;
     private List<Move> _moveList;
     
@@ -27,11 +34,17 @@ public class TDGutiAgent : GutiAgent
         _actionIndex = gutiType == GutiType.GreenGuti ? 0 : 1;
         _iterator = -1;
         _maxIndex = -1;
-        _maxValue = -1;
+        _maxObsValue = -1;
+        _moveList = null;
         _gutiTypeTree = null;
     }
     
-    public override void OnEpisodeBegin() => Init();
+    public override void OnEpisodeBegin()
+    {
+        Init();
+        if(gameManager.gameManagerParams.autoPlay)
+            gameManager.Restart();
+    }
 
     public override void MakeMove()
     {
@@ -56,21 +69,28 @@ public class TDGutiAgent : GutiAgent
     {
         if (_iterator < 0)
         {
-            sensor.AddObservation(new List<float>(new float[38]));
+            // This is triggered when Academy calls a RequestDecision Cycle
+            sensor.AddObservation(new List<float>(new float[39]));
             return;
         }
+        // Adding Observations
         var gutiList = _gutiTypeTree[_iterator++];
         sensor.AddObservation(gutiList);
-        if (_iterator < _gutiTypeTree.Count)
-            sensor.AddObservation(1.0f);
+        sensor.AddObservation(gameManager.scoreboard.GetScoreDifference(gutiType));
+        
+        // Last bit used to Send signals to the Python Environment to indicate stage of the step observation
+        if (_iterator <= 1)
+            sensor.AddObservation((float) StepStage.StepBegin);
+        else if (_iterator < _gutiTypeTree.Count)
+            sensor.AddObservation((float) StepStage.StepRunning);
         else
-            sensor.AddObservation(-2.0f);
+            sensor.AddObservation((float) StepStage.StepEnd);
     }
     
     
     public override void OnActionReceived(float[] vectorAction)
     {
-        if (_gutiTypeTree == null)
+        if (_gutiTypeTree == null || _moveList.Count <= 0)
             return;
         if (_iterator < _gutiTypeTree.Count)
         {
@@ -78,11 +98,12 @@ public class TDGutiAgent : GutiAgent
             SetReward(0);
             RequestDecision();
         }
-        else
+        else if (_iterator >= _gutiTypeTree.Count)
         {
             UpdateMaxState(vectorAction[_actionIndex]);
             var move = AgentMove(_moveList[_maxIndex]);
-            var reward =  gameManager.scoreboard.GetScoreDifference(gutiType) / 16.0f;
+            var reward =  gameManager.scoreboard.GetScoreDifference(gutiType);
+            Debug.Log($"{_iterator}, {_gutiTypeTree.Count}");
             SetReward(reward);
             gameManager.EndStep(gutiType, move);
             Init();
@@ -97,16 +118,17 @@ public class TDGutiAgent : GutiAgent
         return move;
     }
 
-    private void UpdateMaxState(float val)
+    private void UpdateMaxState(float obsVal)
     {
-        if (!(val > _maxValue)) return;
-        _maxIndex = _iterator <= 0 ? 0 : _iterator - 1;
-        _maxValue = val;
+        var tempIterator = _iterator;
+        if (!(obsVal > _maxObsValue)) return;
+        if (_iterator > _moveList.Count) tempIterator = _moveList.Count;
+        _maxIndex =  tempIterator <= 0 ? 0 : tempIterator - 1;
+        _maxObsValue = obsVal;
     }
 
     public override void Heuristic(float[] actionsOut)
     {
         actionsOut[0] = Random.Range(0.0f, 1.0f);
-        actionsOut[1] = 1 - actionsOut[0];
     }
 }
