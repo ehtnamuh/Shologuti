@@ -9,7 +9,7 @@ namespace Board
 		[SerializeField] public BoardGui boardGui;
 		private GutiMap _gutiMap; // logical state of the board
 		private GutiNode[] _gutiNodesArray;
-		public AddressIndexTranslator addressIndexTranslator;
+		// public AddressIndexTranslator addressIndexTranslator;
 
 		private void Awake()
 		{
@@ -33,7 +33,7 @@ namespace Board
 				boardGui.CreateGutiGo(gutiNode);
 			}
 			// Debug.Log(boardGui.gameObject.name + "  " + boardGui._gutiGoMap.Count);
-			addressIndexTranslator = new AddressIndexTranslator(_gutiNodesArray);
+			// addressIndexTranslator = new AddressIndexTranslator(_gutiNodesArray);
 		}
 
 		private void LoadFromJson()
@@ -42,6 +42,7 @@ namespace Board
 			var data = textAsset.text;
 			var fromJson = JsonUtility.FromJson<GutiNodes>(data);
 			_gutiNodesArray = fromJson.gutiArray;
+			AddressIndexTranslator.LoadAddressIndexTranslator(_gutiNodesArray);
 		}
 
 		public void Restart()

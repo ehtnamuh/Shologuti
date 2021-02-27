@@ -3,19 +3,19 @@ using Board.Guti;
 
 namespace Board
 {
-    public class AddressIndexTranslator
+    public static class AddressIndexTranslator
     {
-        private readonly Dictionary<Address, int> _addressToIndex;
-        private readonly Dictionary<int, Address> _indexToAddress;
+        private static Dictionary<Address, int> _addressToIndex;
+        private static Dictionary<int, Address> _indexToAddress;
 
-        public AddressIndexTranslator(IReadOnlyList<GutiNode> gutiArray)
+        public static void LoadAddressIndexTranslator(IReadOnlyList<GutiNode> gutiNodeArray)
         {
             _addressToIndex = new Dictionary<Address, int>(37);
             _indexToAddress = new Dictionary<int, Address>(37);
-            Init(gutiArray);
+            Init(gutiNodeArray);
         }
 
-        private void Init(IReadOnlyList<GutiNode> gutiArray)
+        private static void Init(IReadOnlyList<GutiNode> gutiArray)
         {
             for (var index = 0; index < gutiArray.Count; index++)
             {
@@ -25,9 +25,9 @@ namespace Board
             }
         }
 
-        public Address GetAddressFromIndex(int addressIndex) => _indexToAddress[addressIndex];
+        public static Address GetAddressFromIndex(int addressIndex) => _indexToAddress[addressIndex];
 		
-        public int GetIndexFromAddress(Address address) => _addressToIndex[address];
+        public static int GetIndexFromAddress(Address address) => _addressToIndex[address];
 
     }
 }

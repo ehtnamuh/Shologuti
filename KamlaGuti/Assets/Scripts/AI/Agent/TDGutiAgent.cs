@@ -24,6 +24,7 @@ public class TDGutiAgent : GutiAgent
         // if (!Academy.Instance.IsCommunicatorOn)
         //     this.MaxStep = 0;
         MaxStep = 0; // This is to prevent the agent being reset by MlAgents Academy 
+        agentObservation = new AgentObservation( gameManager.simulator);
         Init();
     }
 
@@ -49,9 +50,9 @@ public class TDGutiAgent : GutiAgent
     public override void MakeMove()
     {
         var simulator = gameManager.simulator;
-        simulator.LoadMap();
+        simulator.CopyBoardMap();
         _moveList = simulator.ExtractMoves(gutiType);
-        var gutiTypeTree = simulator.GetAllFutureBoardStatesAsList(gutiType, _moveList);
+        var gutiTypeTree = agentObservation.GetAllFutureBoardStatesAsList(gutiType, _moveList);
         PopulateGutiTypeTree(gutiTypeTree);
         // simulator.UnloadMap();
         RequestDecision();
