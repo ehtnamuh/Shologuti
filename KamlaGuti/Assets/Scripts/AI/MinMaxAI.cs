@@ -20,7 +20,7 @@ public class MinMaxAi
 
     public Move MinMax(GutiType rootGutiType, int explorationDepth, ref int projectedScore)
     {
-        _simulator.LoadMap();
+        _simulator.CopyBoardMap();
         return MinMax(rootGutiType, rootGutiType, explorationDepth, ref projectedScore);
     }
 

@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
 {
     // public static GameManager instance;
 
-    [SerializeField] private GameManagerParams gameManagerParams;
+    [SerializeField] public GameManagerParams gameManagerParams;
     [SerializeField] private Board.Board board;
     [SerializeField] public Simulator simulator;
     [SerializeField] public GameStateManager gameStateManager;
@@ -87,7 +87,7 @@ public class GameManager : MonoBehaviour
         {
             _playerMap = new Dictionary<GutiType, BasePlayer>();
             // _playerMap[GutiType.GreenGuti] = new PlayerHuman(GutiType.GreenGuti, PlayerType.Human);
-            // _playerMap[GutiType.RedGuti] = new PlayerHuman(GutiType.RedGuti, PlayerType.Human);
+            // _playerMap[GutiType.RedGuti] = new PlayerHuman(GutiType.RedGuti, PlayerType.Human, this);
             _playerMap[GutiType.RedGuti] = new PlayerMinMax(GutiType.RedGuti, PlayerType.AI, this, new MinMaxAi(simulator), 1);
             // _playerMap[GutiType.GreenGuti] = new PlayerMinMax(GutiType.GreenGuti, PlayerType.AI, new MinMaxAi(simulator), 3);
             _playerMap[GutiType.GreenGuti] = new PlayerRla(GutiType.GreenGuti, PlayerType.RLA, this, agent);
@@ -155,9 +155,6 @@ public class GameManager : MonoBehaviour
         if (_playerMap[GutiType.GreenGuti].PlayerType == PlayerType.RLA ||
             _playerMap[GutiType.RedGuti].PlayerType == PlayerType.RLA)
             agent.EndEpisode();
-        else
-            return;
-        if (gameManagerParams.autoPlay) Restart();
     }
 
     private void LockStep() => _stepEnded = false;

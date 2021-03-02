@@ -7,6 +7,7 @@ public abstract class GutiAgent : Agent
     public GutiType gutiType;
     public GameManager gameManager;
     public string name = "BaseAgent";
+    public AgentObservation agentObservation;
     
     public override void Initialize()
     {

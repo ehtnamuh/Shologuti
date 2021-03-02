@@ -4,19 +4,29 @@ using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Random = UnityEngine.Random;
 
-public class PpoGutiAgent : GutiAgent
+public class PPOGutiAgent : GutiAgent
 {
-    public override void Initialize() => MaxStep = 0;
+    public override void Initialize()
+    {
+        MaxStep = 0;
+        agentObservation = new AgentObservation(gameManager.simulator);
+    }
+
+    public override void OnEpisodeBegin()
+    {
+        if(gameManager.gameManagerParams.autoPlay)
+            gameManager.Restart();
+    }
 
     public override void MakeMove()
     {
-        gameManager.simulator.LoadMap();
+        gameManager.simulator.CopyBoardMap();
         RequestDecision();
     }
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        sensor.AddObservation(gameManager.simulator.GetCurrentBoardStateAsList());
+        sensor.AddObservation(agentObservation.GetCurrentBoardStateAsList());
         sensor.AddObservation((float) gutiType);
     }
 
@@ -24,7 +34,7 @@ public class PpoGutiAgent : GutiAgent
     {
         var source = (int) vectorAction[0];
         var target = (int) vectorAction[1];
-        var move = gameManager.simulator.GetMoveFromIndexes(source, target);
+        var move = agentObservation.GetMoveFromIndexes(source, target);
         if (RuleBook.IsMoveValid(move, gutiType, gameManager.simulator.gutiMap))
         {
             AgentMove(move);
@@ -49,7 +59,7 @@ public class PpoGutiAgent : GutiAgent
     
     private List<List<int>> CreateMask()
     {
-        var moveIndexes = gameManager.simulator.GetMoveIndexes(gutiType);
+        var moveIndexes = agentObservation.GetMoveIndexes(gutiType);
         var sourceMask = new List<int>();
         var targetMask = new List<int>();
     
