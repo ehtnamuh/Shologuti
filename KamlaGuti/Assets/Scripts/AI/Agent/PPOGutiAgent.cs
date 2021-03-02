@@ -2,6 +2,7 @@
 using Board.Guti;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
+using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class PPOGutiAgent : GutiAgent
@@ -26,15 +27,15 @@ public class PPOGutiAgent : GutiAgent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        sensor.AddObservation(agentObservation.GetCurrentBoardStateAsList());
-        sensor.AddObservation((float) gutiType);
+        sensor.AddObservation(agentObservation.GetCurrentBoardStateAsList(gutiType));
+        sensor.AddObservation((float) GutiType.GreenGuti);
     }
 
     public override void OnActionReceived(float[] vectorAction)
     {
         var source = (int) vectorAction[0];
         var target = (int) vectorAction[1];
-        var move = agentObservation.GetMoveFromIndexes(source, target);
+        var move = agentObservation.GetMoveFromIndexes(source, target, gutiType);
         if (RuleBook.IsMoveValid(move, gutiType, gameManager.simulator.gutiMap))
         {
             AgentMove(move);

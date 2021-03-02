@@ -27,7 +27,19 @@ public  class GameStateManager: MonoBehaviour
     
     public void SetGameEndState(GutiType gutiType)
     {
-        var gameState = gutiType == GutiType.GreenGuti ? GameState.GreenWin : GameState.RedWin;
+        var gameState = GameState.Draw;
+        switch (gutiType)
+        {
+            case GutiType.GreenGuti:
+                gameState = GameState.GreenWin;
+                break;
+            case GutiType.RedGuti:
+                gameState = GameState.RedWin;
+                break;
+            default:
+                gameState = GameState.Draw;
+                break;
+        }
         SetGameState(gameState);
     }
 
