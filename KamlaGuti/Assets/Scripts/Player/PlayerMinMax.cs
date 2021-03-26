@@ -24,13 +24,12 @@ namespace Player
             return move;
         }
 
-
         public override void ReInit() => CapturedGutiCount = 0;
 
         public void ReInit(int expDepth) => _explorationDepth = expDepth<=0? 1: expDepth;
 
         public MinMaxAi GetMinMaxAi() => _minMaxAi;
     
-        public override string ToString() => $"Type: {PlayerType}\nDepth: {_explorationDepth}\nColor: {gutiType}\nScore: {CapturedGutiCount}";
+        public override string ToString() => $"Type: {"MinMaxAI"}\nDepth: {_explorationDepth}\nColor: {gutiType}\nScore: {CapturedGutiCount}";
     }
 }

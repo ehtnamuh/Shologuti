@@ -59,7 +59,7 @@ internal static class GameStateGuiUpdater
                 break;
             case GameState.RedWin:
                 gameStatusText.text = "Red Wins";
-                gameStatusText.color = Color.red;
+                gameStatusText.color = Color.yellow;
                 break;
             case GameState.Paused:
                 gameStatusText.text = "Game Paused";

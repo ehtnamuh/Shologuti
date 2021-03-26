@@ -2,11 +2,11 @@
 
 namespace Player
 {
-    public abstract class PlayerHuman: BasePlayer
+    public class PlayerHuman: BasePlayer
     {
         public Move SelectedMove { get; set; }
 
-        protected PlayerHuman(GutiType gutiType, PlayerType tPlayerType, GameManager gameManager) : base(gameManager)
+        public PlayerHuman(GutiType gutiType, PlayerType tPlayerType, GameManager gameManager) : base(gameManager)
         {
             this.gutiType = gutiType;
             PlayerType = tPlayerType;
