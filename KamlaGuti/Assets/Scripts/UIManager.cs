@@ -5,11 +5,14 @@ public class UIManager : MonoBehaviour
 {
     [SerializeField] private Button pauseBtn;
     [SerializeField] private GameManager gameManager;
+    [SerializeField] private Canvas hud;
+    [SerializeField] private Canvas settings;
 
     private Text _pauseBtnText;
 
     public void Awake()
     {
+        settings.enabled = false;
         _pauseBtnText = pauseBtn.GetComponentInChildren<Text>();
     }
 
@@ -47,6 +50,20 @@ public class UIManager : MonoBehaviour
                 gameStateManager.SetGameState(GameState.InPlay);
                 break;
         }
+    }
+
+    public void ShowSetting()
+    {
+        Debug.Log("Show Settings and hide HUD");
+        settings.enabled = true;
+        hud.enabled = false;
+    }
+
+    public void HideSettings()
+    {
+        Debug.Log("hide Settings page, show HUD");
+        settings.enabled = false;
+        hud.enabled = true;
     }
 
     public void Restart()

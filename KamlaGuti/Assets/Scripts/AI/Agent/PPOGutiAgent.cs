@@ -2,7 +2,6 @@
 using Board.Guti;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
-using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class PPOGutiAgent : GutiAgent
@@ -10,6 +9,11 @@ public class PPOGutiAgent : GutiAgent
     public override void Initialize()
     {
         MaxStep = 0;
+        // agentObservation = new AgentObservation(gameManager.simulator);
+    }
+
+    public void Start()
+    {
         agentObservation = new AgentObservation(gameManager.simulator);
     }
 
@@ -27,6 +31,7 @@ public class PPOGutiAgent : GutiAgent
 
     public override void CollectObservations(VectorSensor sensor)
     {
+        if(agentObservation == null) return;
         sensor.AddObservation(agentObservation.GetCurrentBoardStateAsList(gutiType));
         sensor.AddObservation((float) GutiType.GreenGuti);
     }

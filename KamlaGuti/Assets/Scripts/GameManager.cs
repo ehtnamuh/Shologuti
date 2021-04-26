@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] public Simulator simulator;
     [SerializeField] public GameStateManager gameStateManager;
     [SerializeField] public Scoreboard scoreboard;
+    [SerializeField] public PlayerSpawner playerSpawner;
     public UIManager uiManager;
     public GutiAgent agent;
     
@@ -87,10 +88,13 @@ public class GameManager : MonoBehaviour
         {
             _playerMap = new Dictionary<GutiType, BasePlayer>();
             // _playerMap[GutiType.GreenGuti] = new PlayerHuman(GutiType.GreenGuti, PlayerType.Human, this);
-            _playerMap[GutiType.RedGuti] = new PlayerHuman(GutiType.RedGuti, PlayerType.Human, this);
+            // _playerMap[GutiType.RedGuti] = playerSpawner.GetPlayer(PlayerType.Human, GutiType.RedGuti);
+            _playerMap[GutiType.RedGuti] = playerSpawner.SpawnPlayer(PlayerType.AI, GutiType.RedGuti, 1);
             // _playerMap[GutiType.RedGuti] = new PlayerMinMax(GutiType.RedGuti, PlayerType.AI, this, new MinMaxAi(simulator), 1);
-            _playerMap[GutiType.GreenGuti] = new PlayerMinMax(GutiType.GreenGuti, PlayerType.AI, this , new MinMaxAi(simulator), 1);
+            // _playerMap[GutiType.GreenGuti] = new PlayerMinMax(GutiType.GreenGuti, PlayerType.AI, this , new MinMaxAi(simulator), 1);
+            // _playerMap[GutiType.GreenGuti] = playerSpawner.GetPlayer(PlayerType.AI, GutiType.GreenGuti, 1);
             // _playerMap[GutiType.GreenGuti] = new PlayerRla(GutiType.GreenGuti, PlayerType.RLA, this, agent);
+            _playerMap[GutiType.GreenGuti] = playerSpawner.SpawnPlayer(PlayerType.RLA, GutiType.GreenGuti, AgentType.AgentSAC, DifficultyLevel.Hard);
             // _playerMap[GutiType.RedGuti] = new PlayerRla(GutiType.RedGuti, PlayerType.RLA, this, agent);
         }
         else
