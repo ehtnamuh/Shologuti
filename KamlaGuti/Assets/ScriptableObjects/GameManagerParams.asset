@@ -15,3 +15,5 @@ MonoBehaviour:
   timeScale: 20
   maxStepCount: 100
   autoPlay: 0
+  stepping: 0
+  scoreUnit: 1

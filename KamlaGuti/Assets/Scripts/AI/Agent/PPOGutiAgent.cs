@@ -2,25 +2,21 @@
 using Board.Guti;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
+using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class PPOGutiAgent : GutiAgent
 {
-    public override void Initialize()
-    {
-        MaxStep = 0;
-        // agentObservation = new AgentObservation(gameManager.simulator);
-    }
+    // [SerializeField] private string agentName;
+    public override void Initialize() => MaxStep = 0;
 
-    public void Start()
-    {
-        agentObservation = new AgentObservation(gameManager.simulator);
-    }
+    public void Start() => agentObservation = new AgentObservation(gameManager.simulator);
 
     public override void OnEpisodeBegin()
     {
-        if(gameManager.gameManagerParams.autoPlay)
-            gameManager.Restart();
+        Debug.Log("episode ended " + name);
+        // if(gameManager.gameManagerParams.autoPlay)
+        //     gameManager.Restart();
     }
 
     public override void MakeMove()

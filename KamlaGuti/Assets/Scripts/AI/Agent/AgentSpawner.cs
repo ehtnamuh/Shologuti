@@ -44,7 +44,8 @@ public class AgentSpawner : MonoBehaviour
 {
         [SerializeField] private GutiAgent sacAgentPrefabEasy;
         [SerializeField] private GutiAgent sacAgentPrefabHard;
-        [SerializeField] private GutiAgent ppoAgentPrefab;
+        [SerializeField] private GutiAgent ppoAgentPrefabEasy;
+        [SerializeField] private GutiAgent ppoAgentPrefabHard;
         [SerializeField] private GutiAgent tdAgentPrefab;
         [SerializeField] private GameManager gameManager;
         
@@ -57,8 +58,8 @@ public class AgentSpawner : MonoBehaviour
                 _agentDictionary = new Dictionary<AgentPrefabIdentifier, GutiAgent>();
                 _agentDictionary[new AgentPrefabIdentifier(AgentType.AgentTD, DifficultyLevel.Easy)] = tdAgentPrefab;
                 _agentDictionary[new AgentPrefabIdentifier(AgentType.AgentTD, DifficultyLevel.Hard)] = tdAgentPrefab;
-                _agentDictionary[new AgentPrefabIdentifier(AgentType.AgentPPO, DifficultyLevel.Easy)] = ppoAgentPrefab;
-                _agentDictionary[new AgentPrefabIdentifier(AgentType.AgentPPO, DifficultyLevel.Hard)] = ppoAgentPrefab;
+                _agentDictionary[new AgentPrefabIdentifier(AgentType.AgentPPO, DifficultyLevel.Easy)] = ppoAgentPrefabEasy;
+                _agentDictionary[new AgentPrefabIdentifier(AgentType.AgentPPO, DifficultyLevel.Hard)] = ppoAgentPrefabHard;
                 _agentDictionary[new AgentPrefabIdentifier(AgentType.AgentSAC, DifficultyLevel.Easy)] = sacAgentPrefabEasy;
                 _agentDictionary[new AgentPrefabIdentifier(AgentType.AgentSAC, DifficultyLevel.Hard)] = sacAgentPrefabHard;
         }

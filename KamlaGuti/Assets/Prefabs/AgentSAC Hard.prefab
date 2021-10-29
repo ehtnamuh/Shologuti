@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1408655400978663374}
   - component: {fileID: 1408655400978663373}
   m_Layer: 0
-  m_Name: AgentPPO Hard
+  m_Name: AgentSAC Hard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -74,4 +74,4 @@ MonoBehaviour:
   MaxStep: 0
   gutiType: 1
   gameManager: {fileID: 0}
-  name: PPOAgent
+  name: SACAgent

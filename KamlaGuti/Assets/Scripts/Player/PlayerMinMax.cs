@@ -6,10 +6,11 @@ namespace Player
     {
         private readonly MinMaxAi _minMaxAi;
         private int _explorationDepth;
-        public PlayerMinMax(GutiType gutiType, PlayerType tPlayerType, GameManager gameManager, MinMaxAi minMaxAi, int explorationDepth = -1) : base(gameManager)
+        public PlayerMinMax(GutiType gutiType, PlayerType tPlayerType, GameManager gameManager, MinMaxAi minMaxAi, int explorationDepth = -1, string name = "PlayerMinMax") : base(gameManager)
         {
             _explorationDepth = explorationDepth<=0? 1: explorationDepth;
             this.gutiType = gutiType;
+            base.name = name;
             PlayerType = tPlayerType;
             CapturedGutiCount = 0;
             _minMaxAi = minMaxAi;

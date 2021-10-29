@@ -6,9 +6,14 @@ namespace ScriptableObjects
     [CreateAssetMenu(fileName = "SettingsParams", menuName = "KamlaGuti/SettingsParams")]
     public class SettingsParams : ScriptableObject
     {
-        public PlayerType playerOneType;
-        public PlayerType playerTwoType;
-        public int difficultyLevelOne;
-        public int difficultyLevelTwo;
+        public PlayerType redPlayerType;
+        public PlayerType greenPlayerType;
+        public int redDifficultyInt;
+        public int greenDifficultyInt;
+        public DifficultyLevel redDifficultyLevel;
+        public DifficultyLevel greenDifficultyLevel;
+        public AgentType redAgentType;
+        public AgentType greenAgentType;
+        public bool isSteping;
     }
 }

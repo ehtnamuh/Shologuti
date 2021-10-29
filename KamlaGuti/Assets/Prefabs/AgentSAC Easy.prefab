@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1408655400978663374}
   - component: {fileID: 1408655400978663373}
   m_Layer: 0
-  m_Name: AgentPPO Hard
+  m_Name: AgentSAC Easy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -50,7 +50,7 @@ MonoBehaviour:
     VectorActionSize: 2500000025000000
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
-  m_Model: {fileID: 5022602860645237092, guid: 4a39ef144de367e40aa1296635b62b5b, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: d28d875093e4715498a49bda85e904d3, type: 3}
   m_InferenceDevice: 1
   m_BehaviorType: 2
   m_BehaviorName: GutiBehaviourPPO
@@ -74,4 +74,4 @@ MonoBehaviour:
   MaxStep: 0
   gutiType: 1
   gameManager: {fileID: 0}
-  name: PPOAgent
+  name: SACAgent

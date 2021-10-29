@@ -4,6 +4,7 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
     [SerializeField] private Button pauseBtn;
+    [SerializeField] private Button stepBtn;
     [SerializeField] private GameManager gameManager;
     [SerializeField] private Canvas hud;
     [SerializeField] private Canvas settings;
@@ -14,11 +15,22 @@ public class UIManager : MonoBehaviour
     {
         settings.enabled = false;
         _pauseBtnText = pauseBtn.GetComponentInChildren<Text>();
+        
     }
 
     public void Init()
     {
         _pauseBtnText.text = "Pause";
+        if (gameManager.settingsManager.gameManagerParams.stepping)
+        {
+            pauseBtn.interactable = false;
+            stepBtn.interactable = true;
+        }
+        else
+        {
+            pauseBtn.interactable = true;
+            stepBtn.interactable = false;
+        }
     }
     
 
@@ -45,24 +57,23 @@ public class UIManager : MonoBehaviour
                 _pauseBtnText.text = "Pause";
                 gameStateManager.SetGameState(GameState.InPlay);
                 break;
-            default:
-                _pauseBtnText.text = "Pause";
-                gameStateManager.SetGameState(GameState.InPlay);
-                break;
         }
     }
 
     public void ShowSetting()
     {
-        Debug.Log("Show Settings and hide HUD");
+        gameManager.gameStateManager.SetGameState(GameState.Paused);
         settings.enabled = true;
+        gameManager.settingsManager.InitializeSettingsPage();
+        gameManager.GetBoard().enabled = false;
         hud.enabled = false;
     }
 
     public void HideSettings()
     {
-        Debug.Log("hide Settings page, show HUD");
+        gameManager.gameStateManager.SetGameState(GameState.InPlay);
         settings.enabled = false;
+        gameManager.GetBoard().enabled = true;
         hud.enabled = true;
     }
 
