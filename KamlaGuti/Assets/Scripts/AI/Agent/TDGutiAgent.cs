@@ -40,12 +40,7 @@ public class TDGutiAgent : GutiAgent
         _gutiTypeTree = null;
     }
     
-    public override void OnEpisodeBegin()
-    {
-        Init();
-        if(gameManager.gameManagerParams.autoPlay)
-            gameManager.Restart();
-    }
+    public override void OnEpisodeBegin() => Init();
 
     public override void MakeMove()
     {
