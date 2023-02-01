@@ -1,40 +1,52 @@
-﻿
-using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
     [SerializeField] private Button pauseBtn;
+    [SerializeField] private Button stepBtn;
+    [SerializeField] private GameManager gameManager;
+    [SerializeField] private Canvas hud;
+    [SerializeField] private Canvas settings;
 
     private Text _pauseBtnText;
-    private GameManager _gameManager;
-    
+
     public void Awake()
     {
-        _gameManager = gameObject.GetComponent<GameManager>();
+        settings.enabled = false;
         _pauseBtnText = pauseBtn.GetComponentInChildren<Text>();
+        
     }
 
     public void Init()
     {
         _pauseBtnText.text = "Pause";
+        if (gameManager.settingsManager.gameManagerParams.stepping)
+        {
+            pauseBtn.interactable = false;
+            stepBtn.interactable = true;
+        }
+        else
+        {
+            pauseBtn.interactable = true;
+            stepBtn.interactable = false;
+        }
     }
     
 
     public void Step()
     {
-        if (_gameManager.gameStateManager.GameState != GameState.Paused && _gameManager.gameStateManager.GameState != GameState.InPlay)
+        if (gameManager.gameStateManager.GameState != GameState.Paused && gameManager.gameStateManager.GameState != GameState.InPlay)
         {
             Debug.Log("Game Ended. Hit Restart");
             return;
         }
-        _gameManager.NextStep();
+        gameManager.NextStep();
     }
 
     public void Pause()
     {
-        var gameStateManager = _gameManager.gameStateManager;
+        var gameStateManager = gameManager.gameStateManager;
         switch (gameStateManager.GameState)
         {
             case GameState.InPlay:
@@ -45,17 +57,30 @@ public class UIManager : MonoBehaviour
                 _pauseBtnText.text = "Pause";
                 gameStateManager.SetGameState(GameState.InPlay);
                 break;
-            default:
-                _pauseBtnText.text = "Pause";
-                gameStateManager.SetGameState(GameState.InPlay);
-                break;
         }
+    }
+
+    public void ShowSetting()
+    {
+        gameManager.gameStateManager.SetGameState(GameState.Paused);
+        settings.enabled = true;
+        gameManager.settingsManager.InitializeSettingsPage();
+        gameManager.GetBoard().enabled = false;
+        hud.enabled = false;
+    }
+
+    public void HideSettings()
+    {
+        gameManager.gameStateManager.SetGameState(GameState.InPlay);
+        settings.enabled = false;
+        gameManager.GetBoard().enabled = true;
+        hud.enabled = true;
     }
 
     public void Restart()
     {
-        _gameManager.DeclareWinner();
-        _gameManager.Restart();  
+        gameManager.DeclareWinner();
+        gameManager.Restart();  
     } 
         
     

@@ -1,25 +1,25 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+using Board.Guti;
 using UnityEngine;
 
 public class Simulator : MonoBehaviour
 {
-    [SerializeField] private Board board;
+    [SerializeField] private Board.Board board;
     [SerializeField] private int minMaxReward = 1;
     [SerializeField] private int minMaxPenalty = 1;
     public GutiMap gutiMap;
 
 
-    private void Start() => gutiMap = board.GetGutiMap();
+    private void Start() => CopyBoardMap();
 
-    public void MakeReady() => gutiMap = board.GetGutiMap();
+    // ensure that a fresh copy of the Board Map is loaded whenever simulator needs to be used
+    public void CopyBoardMap() => gutiMap = board.GetGutiMapCopy();
 
-    public void MoveGuti(Move move, GutiType gutiType)
-    {
-        if (move == null) return;
-        gutiMap.CaptureGuti(move.sourceAddress, move.targetAddress);
-    }
+    // public void UnloadMap() => gutiMap = null;
     
+    
+    public void MoveGuti(Move move) => gutiMap.CaptureGuti(move.sourceAddress, move.targetAddress);
+
     public int PredictMoveValue(Move move, GutiType playerGutiType ,GutiType gutiType)
     {
         var captureScore = playerGutiType == gutiType ? minMaxReward : minMaxPenalty;
@@ -48,19 +48,37 @@ public class Simulator : MonoBehaviour
         return list;
     }
 
-    public List<List<float>> GetAllBoardStatesAsList(GutiType gutiType, List<Move> moveList)
-    {
-        var gutiTypeTree = new List<List<float>>();
-        for (var index = 0; index < moveList.Count; index++)
-        {
-            var move = moveList[index];
-            MoveGuti(move, gutiType);
-            gutiTypeTree.Add(gutiMap.GetBoardStateAsList());
-            ReverseMove(gutiType, move);
-        }
-        return gutiTypeTree;
-    }
-    
-    // public bool CanContinueTurn(Move move) => (board.HasCapturedGuti(move) &&  board.CanCaptureGuti(move.targetAddress));
-
+    // // Returns all future board states upto depth of 1 as Lists of floats
+    // public List<List<float>> GetAllFutureBoardStatesAsList(GutiType gutiType, List<Move> moveList)
+    // {
+    //     var gutiTypeTree = new List<List<float>>();
+    //     gutiTypeTree.Add(gutiMap.GetBoardStateAsList());
+    //     for (var index = 0; index < moveList.Count; index++)
+    //     {
+    //         var move = moveList[index];
+    //         MoveGuti(move);
+    //         gutiTypeTree.Add(gutiMap.GetBoardStateAsList());
+    //         ReverseMove(gutiType, move);
+    //     }
+    //     return gutiTypeTree;
+    // }
+    //
+    // public IEnumerable<float> GetCurrentBoardStateAsList() => gutiMap.GetBoardStateAsList();
+    //
+    // // first column = source Address, second column = target Address
+    // public List<List<int>> GetMoveIndexes(GutiType gutiType)
+    // {
+    //     var moves = ExtractMoves(gutiType);
+    //     var moveIndices = new List<List<int>>(2){new List<int>(), new List<int>()};
+    //     foreach (var move in moves)
+    //     {
+    //         moveIndices[0].Add(AddressIndexTranslator.GetIndexFromAddress(move.sourceAddress));
+    //         moveIndices[1].Add(AddressIndexTranslator.GetIndexFromAddress(move.targetAddress));
+    //     }
+    //     return moveIndices;
+    // }
+    //
+    // public Move GetMoveFromIndexes(int sourceIndex, int targetIndex) => new Move(
+    //     AddressIndexTranslator.GetAddressFromIndex(sourceIndex),
+    //     AddressIndexTranslator.GetAddressFromIndex(targetIndex));
 }
