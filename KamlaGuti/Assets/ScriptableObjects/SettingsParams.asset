@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24bf3ee24137f30498f829649a4a0a2f, type: 3}
+  m_Name: SettingsParams
+  m_EditorClassIdentifier: 
+  redPlayerType: 1
+  greenPlayerType: 0
+  redDifficultyInt: 0
+  greenDifficultyInt: 0
+  redDifficultyLevel: 0
+  greenDifficultyLevel: 0
+  redAgentType: 0
+  greenAgentType: 0

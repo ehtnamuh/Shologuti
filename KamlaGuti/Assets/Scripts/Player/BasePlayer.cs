@@ -1,19 +1,18 @@
 ﻿using Board.Guti;
-using UnityEngine;
 
 namespace Player
 {
     public enum PlayerType
     {
         Human = 0,
-        AI = 1,
-        RLA = 2
-    
+        MinMaxAI = 1,
+        RLAgent = 2
     }
 
     public abstract class BasePlayer
     {
         protected GutiType gutiType;
+        public string name = "BasePlayer";
         private GameManager _gameManager;
 
         public int CapturedGutiCount { get; set; }
@@ -32,7 +31,7 @@ namespace Player
             if (RuleBook.CanCaptureGuti(move, _gameManager.GetBoard().GetGutiMapRef())) CapturedGutiCount++;
         }
 
-        public float GetScore() => CapturedGutiCount * _gameManager.scoreboard.ScoreUnit;
+        public float GetScore() => CapturedGutiCount * _gameManager.settingsManager.gameManagerParams.scoreUnit;
 
     }
 }

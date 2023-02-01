@@ -15,18 +15,17 @@ public class GameManager : MonoBehaviour
 {
     // public static GameManager instance;
 
-    [SerializeField] public GameManagerParams gameManagerParams;
+    // [SerializeField] public GameManagerParams settingsManager.gameManagerParams;
     [SerializeField] private Board.Board board;
     [SerializeField] public Simulator simulator;
     [SerializeField] public GameStateManager gameStateManager;
     [SerializeField] public Scoreboard scoreboard;
+    [SerializeField] public PlayerSpawner playerSpawner;
+    [SerializeField] public SettingsManager settingsManager;
     public UIManager uiManager;
-    public GutiAgent agent;
     
-
-
+    
     private int _currentStepCount = 0;
-    private GutiType _currentTurnGutiType;
     private Dictionary<GutiType, BasePlayer> _playerMap = null;
 
     private bool _stepEnded;
@@ -51,7 +50,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         LockStep();
-        gameManagerParams.maxStepCount = gameManagerParams.maxStepCount == 0 ? 100 : gameManagerParams.maxStepCount;
+        settingsManager.gameManagerParams.maxStepCount = settingsManager.gameManagerParams.maxStepCount == 0 ? 100 : settingsManager.gameManagerParams.maxStepCount;
         Init();
         gameStateManager.SetGameState(GameState.InPlay); // Using SetGameState() can cause failure if UIManager fails to load in time
         UnlockStep();
@@ -66,6 +65,12 @@ public class GameManager : MonoBehaviour
         UnlockStep();
     }
 
+    public void HardRestart()
+    {
+        _playerMap = null;
+        GC.Collect();
+        Restart();
+    }
 
     #endregion
 
@@ -73,12 +78,13 @@ public class GameManager : MonoBehaviour
 
     private void Init()
     {
-        _currentTurnGutiType = Random.value > 0.5? GutiType.GreenGuti : GutiType.RedGuti;
         _currentStepCount = 0;
         uiManager.Init();
         InitPlayers();
         InitScoreboard();
-        Time.timeScale = gameManagerParams.timeScale;
+        gameStateManager.CurrentGutiType = Random.value > 0.5? GutiType.GreenGuti : GutiType.RedGuti;
+        gameStateManager.SetPlayerTurn(gameStateManager.CurrentGutiType, _playerMap[gameStateManager.CurrentGutiType].PlayerType);
+        Time.timeScale = settingsManager.gameManagerParams.timeScale;
     }
     
     private void InitPlayers()
@@ -86,11 +92,8 @@ public class GameManager : MonoBehaviour
         if (_playerMap == null)
         {
             _playerMap = new Dictionary<GutiType, BasePlayer>();
-            // _playerMap[GutiType.GreenGuti] = new PlayerHuman(GutiType.GreenGuti, PlayerType.Human);
-            // _playerMap[GutiType.RedGuti] = new PlayerHuman(GutiType.RedGuti, PlayerType.Human, this);
-            _playerMap[GutiType.RedGuti] = new PlayerMinMax(GutiType.RedGuti, PlayerType.AI, this, new MinMaxAi(simulator), 1);
-            // _playerMap[GutiType.GreenGuti] = new PlayerMinMax(GutiType.GreenGuti, PlayerType.AI, new MinMaxAi(simulator), 3);
-            _playerMap[GutiType.GreenGuti] = new PlayerRla(GutiType.GreenGuti, PlayerType.RLA, this, agent);
+            _playerMap[GutiType.RedGuti] = playerSpawner.SpawnPlayer(GutiType.RedGuti);
+            _playerMap[GutiType.GreenGuti] = playerSpawner.SpawnPlayer(GutiType.GreenGuti);
         }
         else
         {
@@ -122,13 +125,15 @@ public class GameManager : MonoBehaviour
         if(!_stepEnded) return;
         LockStep();
         // Checking Maximum Step per Episode
-        if(_currentStepCount > gameManagerParams.maxStepCount){ DeclareWinner(); return;}
+        if(_currentStepCount > settingsManager.gameManagerParams.maxStepCount){ DeclareWinner(); return;}
         // Taking appropriate Actions According to Player type
-        var player = _playerMap[_currentTurnGutiType];
+        var player = _playerMap[gameStateManager.CurrentGutiType];
         var move = player.GetMove();
         if(move == null) return;
         board.MoveGuti(move);
-        EndStep(_currentTurnGutiType, move);
+        EndStep(gameStateManager.CurrentGutiType, move);
+        if ((gameStateManager.GameState == GameState.Paused || gameStateManager.GameState == GameState.InPlay) && settingsManager.gameManagerParams.stepping)
+            gameStateManager.SetGameState(GameState.Paused);
         UnlockStep();
     }
 
@@ -139,7 +144,7 @@ public class GameManager : MonoBehaviour
         var canContinueTurn = RuleBook.CanContinueTurn(move, board.GetGutiMapRef());
         scoreboard.UpdateScoreboard(player);
         if(!canContinueTurn) ChangeTurn();     
-        if(player.CapturedGutiCount >= 16) DeclareWinner();
+        if(player.CapturedGutiCount*settingsManager.gameManagerParams.scoreUnit >= settingsManager.gameManagerParams.ScoreToWin) DeclareWinner();
     }
 
     public void DeclareWinner()
@@ -152,9 +157,23 @@ public class GameManager : MonoBehaviour
                 ? GutiType.GreenGuti
                 : GutiType.RedGuti;
         gameStateManager.SetGameEndState(winningGutiType);
-        if (_playerMap[GutiType.GreenGuti].PlayerType == PlayerType.RLA ||
-            _playerMap[GutiType.RedGuti].PlayerType == PlayerType.RLA)
-            agent.EndEpisode();
+        
+        // End Episodes for RLA agents *important for training
+        if (_playerMap[GutiType.GreenGuti].PlayerType != PlayerType.RLAgent &&
+            _playerMap[GutiType.RedGuti].PlayerType != PlayerType.RLAgent) return;
+        if (_playerMap[GutiType.GreenGuti].PlayerType == PlayerType.RLAgent)
+        {
+            var temp = _playerMap[GutiType.GreenGuti] as PlayerRla;
+            temp?.agent.EndEpisode();
+        }
+        if (_playerMap[GutiType.RedGuti].PlayerType == PlayerType.RLAgent)
+        {
+            var temp = _playerMap[GutiType.RedGuti] as PlayerRla;
+            temp?.agent.EndEpisode();
+        }
+
+        if(settingsManager.gameManagerParams.autoPlay)
+            Restart();
     }
 
     private void LockStep() => _stepEnded = false;
@@ -168,9 +187,9 @@ public class GameManager : MonoBehaviour
     public void ProcessHumanInput(GameObject go)
     {
         var guti = go.GetComponent<Guti>();
-        if (_playerMap[_currentTurnGutiType].PlayerType == PlayerType.AI)
+        if (_playerMap[gameStateManager.CurrentGutiType].PlayerType == PlayerType.MinMaxAI)
         {
-            var player = _playerMap[_currentTurnGutiType] as PlayerMinMax;
+            var player = _playerMap[gameStateManager.CurrentGutiType] as PlayerMinMax;
             if (player == null) return;
             var ai = player.GetMinMaxAi();
             var projectedScore = 0;
@@ -180,16 +199,16 @@ public class GameManager : MonoBehaviour
         }
         if (guti.gutiType == GutiType.Highlight)
         {
-            if (!(_playerMap[_currentTurnGutiType] is PlayerHuman player)) return;
+            if (!(_playerMap[gameStateManager.CurrentGutiType] is PlayerHuman player)) return;
             if(player.SelectedMove == null) return;
             if(player.SelectedMove.sourceAddress == guti.address) return;
             player.SelectedMove.targetAddress = guti.address;
             UnlockStep();
         }
-        else if (_currentTurnGutiType == guti.gutiType)
+        else if (gameStateManager.CurrentGutiType == guti.gutiType)
         {
             var selectedAddress = guti.address;
-            if (_playerMap[_currentTurnGutiType] is PlayerHuman player) 
+            if (_playerMap[gameStateManager.CurrentGutiType] is PlayerHuman player) 
                 player.SelectedMove = new Move {sourceAddress = selectedAddress};
             board.HighlightWalkableNodes(selectedAddress);
         }
@@ -207,7 +226,12 @@ public class GameManager : MonoBehaviour
     
     public BasePlayer GetPlayer(GutiType gutiType) => _playerMap[gutiType];
 
-    private void ChangeTurn() => _currentTurnGutiType = GutiNode.ChangeGutiType(_currentTurnGutiType);
+    private void ChangeTurn()
+    {
+        gameStateManager.CurrentGutiType = GutiNode.ChangeGutiType(gameStateManager.CurrentGutiType);
+        gameStateManager.SetPlayerTurn(gameStateManager.CurrentGutiType, _playerMap[gameStateManager.CurrentGutiType].PlayerType);
+    }
+
     #endregion
     
     
